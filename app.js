@@ -30,7 +30,7 @@ async function sendMorningMessage() {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `Good Morning Vas Members!🌼\n 🔥Are you ready to become a Algo King?🔥 \n Click the Join Button 👉`,
+            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King?🔥 \n Click the Join Button!`,
           },
           accessory: {
             type: "button",
@@ -78,13 +78,13 @@ const morningMessageRule = new schedule.RecurrenceRule();
 const reviewerMatchRule = new schedule.RecurrenceRule();
 
 morningMessageRule.dayOfWeek = [0, 2, 4, 6];
-morningMessageRule.hour = 14;
-morningMessageRule.minute = 55;
+morningMessageRule.hour = 18;
+morningMessageRule.minute = 00;
 morningMessageRule.tz = "Asia/Seoul";
 
 reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
-reviewerMatchRule.hour = 14;
-reviewerMatchRule.minute = 56;
+reviewerMatchRule.hour = 18;
+reviewerMatchRule.minute = 10;
 reviewerMatchRule.tz = "Asia/Seoul";
 
 schedule.scheduleJob(morningMessageRule, () => {
@@ -93,6 +93,12 @@ schedule.scheduleJob(morningMessageRule, () => {
 
 schedule.scheduleJob(reviewerMatchRule, async () => {
   sendReviewer();
+});
+
+app.message("문제 업로드 완료", async ({ message, say }) => {
+  // say() sends a message to the channel where the event was triggered
+  await say(`Today's algo upload complete. \n Please follow the process below. \n 1. git fetch algo main \n
+  2. git merge algo/main`);
 });
 
 (async () => {
