@@ -78,13 +78,13 @@ const morningMessageRule = new schedule.RecurrenceRule();
 const reviewerMatchRule = new schedule.RecurrenceRule();
 
 morningMessageRule.dayOfWeek = [0, 2, 4, 6];
-morningMessageRule.hour = 23;
-morningMessageRule.minute = 45;
+morningMessageRule.hour = 00;
+morningMessageRule.minute = 50;
 morningMessageRule.tz = "Asia/Seoul";
 
 reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
-reviewerMatchRule.hour = 23;
-reviewerMatchRule.minute = 46;
+reviewerMatchRule.hour = 00;
+reviewerMatchRule.minute = 51;
 reviewerMatchRule.tz = "Asia/Seoul";
 
 schedule.scheduleJob(morningMessageRule, () => {
