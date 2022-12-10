@@ -73,3 +73,30 @@ async function sendReviewer() {
   }
 }
 
+// 스케줄링 설정
+const morningMessageRule = new schedule.RecurrenceRule();
+const reviewerMatchRule = new schedule.RecurrenceRule();
+
+morningMessageRule.dayOfWeek = [0, 2, 4, 6];
+morningMessageRule.hour = 14;
+morningMessageRule.minute = 55;
+morningMessageRule.tz = "Asia/Seoul";
+
+reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
+reviewerMatchRule.hour = 14;
+reviewerMatchRule.minute = 56;
+reviewerMatchRule.tz = "Asia/Seoul";
+
+schedule.scheduleJob(morningMessageRule, () => {
+  sendMorningMessage();
+});
+
+schedule.scheduleJob(reviewerMatchRule, async () => {
+  sendReviewer();
+});
+
+(async () => {
+  await app.start();
+
+  console.log("⚡️ Bolt app is running!");
+})();
