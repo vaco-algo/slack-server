@@ -79,12 +79,12 @@ const reviewerMatchRule = new schedule.RecurrenceRule();
 
 morningMessageRule.dayOfWeek = [0, 2, 4, 6];
 morningMessageRule.hour = 23;
-morningMessageRule.minute = 35;
+morningMessageRule.minute = 45;
 morningMessageRule.tz = "Asia/Seoul";
 
 reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
 reviewerMatchRule.hour = 23;
-reviewerMatchRule.minute = 36;
+reviewerMatchRule.minute = 46;
 reviewerMatchRule.tz = "Asia/Seoul";
 
 schedule.scheduleJob(morningMessageRule, () => {
