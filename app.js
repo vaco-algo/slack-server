@@ -101,7 +101,7 @@ app.message("문제 업로드 완료", async ({ message, say }) => {
 });
 
 (async () => {
-  await app.start();
+  await app.start(process.env.PORT || 3000);
 
   console.log("⚡️ Bolt app is running!");
 })();
