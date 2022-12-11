@@ -26,7 +26,7 @@ async function sendMorningMessage() {
   try {
     const result = await app.client.chat.scheduleMessage({
       token: process.env.SLACK_BOT_TOKEN,
-      channel: "C04ED5A3XHT",
+      channel: "C04FCUUUU7J",
       blocks: [
         {
           type: "section",
@@ -69,7 +69,7 @@ async function sendReviewer() {
     const reviewer = generateRandomReviewer(joinedAlgoMembers);
     const result = await app.client.chat.scheduleMessage({
       token: process.env.SLACK_BOT_TOKEN,
-      channel: "C04ED5A3XHT",
+      channel: "C04FCUUUU7J",
       text: `⭐️Today's Reviewer \n ${reviewer}`,
       post_at:
         process.env.NODE_ENV === test
