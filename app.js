@@ -28,6 +28,7 @@ async function sendMorningMessage() {
     const result = await app.client.chat.scheduleMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: "C04FCUUUU7J",
+      text: "test",
       blocks: [
         {
           type: "section",
