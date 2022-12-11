@@ -6,10 +6,11 @@ const setSchedule = require("./utils/setSchedule.js");
 const { App } = require("@slack/bolt");
 
 const app = new App({
-  signingSecret: process.env.SLACK_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
+  signingSecret: process.env.SLACK_SECRET,
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN,
+  port: process.env.PORT || 3000,
 });
 
 const joinedAlgoMembers = [];
@@ -85,7 +86,7 @@ async function sendReviewer() {
 
 app.message("실행", async ({ say }) => {
   try {
-    await say("일, 화, 목, 금 자동 메세지 설정이 완료되었습니다.")
+    await say("일, 화, 목, 금 자동 메세지 설정이 완료되었습니다.");
     await sendMorningMessage();
     await sendReviewer();
   } catch (error) {
@@ -105,7 +106,7 @@ app.message("문제 업로드 완료", async ({ message, say }) => {
 
 (async () => {
   try {
-    await app.start(process.env.PORT || 3000);
+    await app.start();
 
     console.log("⚡️ Bolt app is running!");
   } catch (error) {
