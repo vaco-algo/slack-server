@@ -1,6 +1,5 @@
 require("dotenv").config();
 
-// const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
 const setSchedule = require("./utils/setSchedule.js");
 
@@ -20,6 +19,8 @@ const member = {
   U04EG0SPEBV: "임현정",
   U04F5QP3WE4: "길지문",
 };
+
+const today = new Date();
 
 async function sendMorningMessage() {
   try {
@@ -43,7 +44,10 @@ async function sendMorningMessage() {
           },
         },
       ],
-      post_at: setSchedule(17, 20),
+      post_at:
+        process.env.NODE_ENV === test
+          ? setSchedule(today.getHours() + 9, today.getMinutes() + 5)
+          : setSchedule(9, 30),
     });
 
     console.log(result);
@@ -67,7 +71,10 @@ async function sendReviewer() {
       token: process.env.SLACK_BOT_TOKEN,
       channel: "C04ED5A3XHT",
       text: `⭐️Today's Reviewer \n ${reviewer}`,
-      post_at: setSchedule(17, 25),
+      post_at:
+        process.env.NODE_ENV === test
+          ? setSchedule(today.getHours() + 9, today.getMinutes() + 10)
+          : setSchedule(10, 30),
     });
 
     console.log(result);
@@ -76,30 +83,9 @@ async function sendReviewer() {
   }
 }
 
-// // 스케줄링 설정
-// const morningMessageRule = new schedule.RecurrenceRule();
-// const reviewerMatchRule = new schedule.RecurrenceRule();
-
-// morningMessageRule.dayOfWeek = [0, 2, 4, 6];
-// morningMessageRule.hour = 09;
-// morningMessageRule.minute = 30;
-// morningMessageRule.tz = "Asia/Seoul";
-
-// reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
-// reviewerMatchRule.hour = 10;
-// reviewerMatchRule.minute = 30;
-// reviewerMatchRule.tz = "Asia/Seoul";
-
-// schedule.scheduleJob(morningMessageRule, function () {
-//   sendMorningMessage();
-// });
-
-// schedule.scheduleJob(reviewerMatchRule, function () {
-//   sendReviewer();
-// });
-
-app.message("실행", async ({ message, say }) => {
+app.message("실행", async () => {
   await sendMorningMessage();
+  await sendReviewer();
 });
 
 app.message("문제 업로드 완료", async ({ message, say }) => {
