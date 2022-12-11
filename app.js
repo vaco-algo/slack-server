@@ -87,17 +87,19 @@ reviewerMatchRule.hour = 10;
 reviewerMatchRule.minute = 30;
 reviewerMatchRule.tz = "Asia/Seoul";
 
-schedule.scheduleJob(morningMessageRule, () => {
+schedule.scheduleJob(morningMessageRule, function () {
   sendMorningMessage();
 });
 
-schedule.scheduleJob(reviewerMatchRule, async () => {
+schedule.scheduleJob(reviewerMatchRule, function () {
   sendReviewer();
 });
 
 app.message("문제 업로드 완료", async ({ message, say }) => {
   // say() sends a message to the channel where the event was triggered
-  await say(`Today's algo upload complete.✨ \n\n Please follow the process below. \n 1. git fetch algo main \n2. git merge algo/main`);
+  await say(
+    `Today's algo upload complete.✨ \n\n Please follow the process below. \n 1. git fetch algo main \n2. git merge algo/main`
+  );
 });
 
 (async () => {
