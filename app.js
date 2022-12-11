@@ -1,7 +1,6 @@
 require("dotenv").config();
-
+const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
-const setSchedule = require("./utils/setSchedule.js");
 
 const { App } = require("@slack/bolt");
 
@@ -10,7 +9,13 @@ const app = new App({
   signingSecret: process.env.SLACK_SECRET,
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN,
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 8000,
+  deferInitialization: true,
+});
+
+app.error((error) => {
+  // Check the details of the error to handle cases where you should retry sending a message or stop the app
+  console.error("error", error);
 });
 
 const joinedAlgoMembers = [];
@@ -21,14 +26,12 @@ const member = {
   U04F5QP3WE4: "길지문",
 };
 
-const today = new Date();
-
 async function sendMorningMessage() {
   try {
-    const result = await app.client.chat.scheduleMessage({
+    const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: "C04FCUUUU7J",
-      text: "test",
+      text: "Good Morning",
       blocks: [
         {
           type: "section",
@@ -46,10 +49,6 @@ async function sendMorningMessage() {
           },
         },
       ],
-      post_at:
-        process.env.NODE_ENV === "test"
-          ? setSchedule(today.getHours() + 9, today.getMinutes() + 1)
-          : setSchedule(9, 30),
     });
 
     console.log(result);
@@ -69,14 +68,10 @@ app.action("button_click", async ({ body, ack, say }) => {
 async function sendReviewer() {
   try {
     const reviewer = generateRandomReviewer(joinedAlgoMembers);
-    const result = await app.client.chat.scheduleMessage({
+    const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: "C04FCUUUU7J",
       text: `⭐️Today's Reviewer \n ${reviewer}`,
-      post_at:
-        process.env.NODE_ENV === "test"
-          ? setSchedule(today.getHours() + 9, today.getMinutes() + 3)
-          : setSchedule(10, 30),
     });
 
     console.log(result);
@@ -85,15 +80,50 @@ async function sendReviewer() {
   }
 }
 
-app.message("실행", async ({ say }) => {
-  try {
-    await say("일, 화, 목, 금 자동 메세지 설정이 완료되었습니다.");
-    await sendMorningMessage();
-    await sendReviewer();
-  } catch (error) {
-    console.log("실행 에러", error);
+let morningSheduleObj = null;
+let reviewerSheduleObj = null;
+
+const scheduleSet = () => {
+  const morningMessageRule = new schedule.RecurrenceRule();
+  const reviewerMatchRule = new schedule.RecurrenceRule();
+
+  morningMessageRule.dayOfWeek = [0, 1, 2, 4, 6];
+  morningMessageRule.hour = 00;
+  morningMessageRule.minute = 05;
+  morningMessageRule.tz = "Asia/Seoul";
+
+  reviewerMatchRule.dayOfWeek = [0, 1, 2, 4, 6];
+  reviewerMatchRule.hour = 00;
+  reviewerMatchRule.minute = 06;
+  reviewerMatchRule.tz = "Asia/Seoul";
+
+  const firstJob = schedule.scheduleJob(morningMessageRule, () => {
+    console.log("스케줄 스타트");
+    sendMorningMessage();
+  });
+
+  const secondJob = schedule.scheduleJob(reviewerMatchRule, () => {
+    console.log("스케줄 스타트");
+    sendReviewer();
+  });
+
+  morningSheduleObj = firstJob;
+  reviewerSheduleObj = secondJob;
+};
+
+const cancel = () => {
+  if (morningSheduleObj !== null && reviewerSheduleObj !== null) {
+    morningSheduleObj.cancel();
+    reviewerSheduleObj.cancel();
   }
-});
+};
+
+const setSchedueler = () => {
+  cancel();
+  scheduleSet();
+};
+
+setSchedueler();
 
 app.message("문제 업로드 완료", async ({ message, say }) => {
   try {
@@ -107,10 +137,13 @@ app.message("문제 업로드 완료", async ({ message, say }) => {
 
 (async () => {
   try {
+    // Must call init() before start() within an async function
+    await app.init();
+    // Now safe to call start()
     await app.start();
-
     console.log("⚡️ Bolt app is running!");
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    console.log(e);
+    process.exit(1);
   }
 })();
