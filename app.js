@@ -21,31 +21,6 @@ const member = {
   U04F5QP3WE4: "길지문",
 };
 
-const schedule = new Date();
-schedule.setHours(8, 13, 0);
-
-const morningMessage = {
-  token: process.env.SLACK_BOT_TOKEN,
-  channel: "C04ED5A3XHT",
-  blocks: [
-    {
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King?🔥 \n Click the Join Button!`,
-      },
-      accessory: {
-        type: "button",
-        text: {
-          type: "plain_text",
-          text: "Join",
-        },
-        action_id: "button_click",
-      },
-    },
-  ],
-};
-
 async function sendMorningMessage() {
   try {
     const result = await app.client.chat.scheduleMessage({
@@ -68,7 +43,7 @@ async function sendMorningMessage() {
           },
         },
       ],
-      post_at: schedule.getTime() / 1000,
+      post_at: setSchedule(17, 20),
     });
 
     console.log(result);
@@ -88,10 +63,11 @@ app.action("button_click", async ({ body, ack, say }) => {
 async function sendReviewer() {
   try {
     const reviewer = generateRandomReviewer(joinedAlgoMembers);
-    const result = await app.client.chat.postMessage({
+    const result = await app.client.chat.scheduleMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: "C04ED5A3XHT",
       text: `⭐️Today's Reviewer \n ${reviewer}`,
+      post_at: setSchedule(17, 25),
     });
 
     console.log(result);
