@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const schedule = require("node-schedule");
+// const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
 const setSchedule = require("./utils/setSchedule.js");
 
@@ -76,27 +76,27 @@ async function sendReviewer() {
   }
 }
 
-// 스케줄링 설정
-const morningMessageRule = new schedule.RecurrenceRule();
-const reviewerMatchRule = new schedule.RecurrenceRule();
+// // 스케줄링 설정
+// const morningMessageRule = new schedule.RecurrenceRule();
+// const reviewerMatchRule = new schedule.RecurrenceRule();
 
-morningMessageRule.dayOfWeek = [0, 2, 4, 6];
-morningMessageRule.hour = 09;
-morningMessageRule.minute = 30;
-morningMessageRule.tz = "Asia/Seoul";
+// morningMessageRule.dayOfWeek = [0, 2, 4, 6];
+// morningMessageRule.hour = 09;
+// morningMessageRule.minute = 30;
+// morningMessageRule.tz = "Asia/Seoul";
 
-reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
-reviewerMatchRule.hour = 10;
-reviewerMatchRule.minute = 30;
-reviewerMatchRule.tz = "Asia/Seoul";
+// reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
+// reviewerMatchRule.hour = 10;
+// reviewerMatchRule.minute = 30;
+// reviewerMatchRule.tz = "Asia/Seoul";
 
-schedule.scheduleJob(morningMessageRule, function () {
-  sendMorningMessage();
-});
+// schedule.scheduleJob(morningMessageRule, function () {
+//   sendMorningMessage();
+// });
 
-schedule.scheduleJob(reviewerMatchRule, function () {
-  sendReviewer();
-});
+// schedule.scheduleJob(reviewerMatchRule, function () {
+//   sendReviewer();
+// });
 
 app.message("실행", async ({ message, say }) => {
   await sendMorningMessage();
