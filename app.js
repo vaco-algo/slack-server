@@ -45,7 +45,7 @@ async function sendMorningMessage() {
         },
       ],
       post_at:
-        process.env.NODE_ENV === 'test'
+        process.env.NODE_ENV === "test"
           ? setSchedule(today.getHours() + 9, today.getMinutes() + 1)
           : setSchedule(9, 30),
     });
@@ -72,7 +72,7 @@ async function sendReviewer() {
       channel: "C04FCUUUU7J",
       text: `⭐️Today's Reviewer \n ${reviewer}`,
       post_at:
-        process.env.NODE_ENV === 'test'
+        process.env.NODE_ENV === "test"
           ? setSchedule(today.getHours() + 9, today.getMinutes() + 3)
           : setSchedule(10, 30),
     });
@@ -83,19 +83,32 @@ async function sendReviewer() {
   }
 }
 
-app.message("실행", async () => {
-  await sendMorningMessage();
-  await sendReviewer();
+app.message("실행", async ({ say }) => {
+  try {
+    await say("일, 화, 목, 금 자동 메세지 설정이 완료되었습니다.")
+    await sendMorningMessage();
+    await sendReviewer();
+  } catch (error) {
+    console.log("실행 에러", error);
+  }
 });
 
 app.message("문제 업로드 완료", async ({ message, say }) => {
-  await say(
-    `Today's algo upload complete.✨ \n\n Please follow the process below. \n 1. git fetch algo main \n2. git merge algo/main`
-  );
+  try {
+    await say(
+      `Today's algo upload complete.✨ \n\n Please follow the process below. \n 1. git fetch algo main \n2. git merge algo/main`
+    );
+  } catch (error) {
+    console.log("문제 업로드 완료 에러", error);
+  }
 });
 
 (async () => {
-  await app.start(process.env.PORT || 3000);
+  try {
+    await app.start(process.env.PORT || 3000);
 
-  console.log("⚡️ Bolt app is running!");
+    console.log("⚡️ Bolt app is running!");
+  } catch (error) {
+    console.log(error);
+  }
 })();
