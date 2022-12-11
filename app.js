@@ -45,8 +45,8 @@ async function sendMorningMessage() {
         },
       ],
       post_at:
-        process.env.NODE_ENV === test
-          ? setSchedule(today.getHours() + 9, today.getMinutes() + 5)
+        process.env.NODE_ENV === 'test'
+          ? setSchedule(today.getHours() + 9, today.getMinutes() + 1)
           : setSchedule(9, 30),
     });
 
@@ -72,8 +72,8 @@ async function sendReviewer() {
       channel: "C04FCUUUU7J",
       text: `⭐️Today's Reviewer \n ${reviewer}`,
       post_at:
-        process.env.NODE_ENV === test
-          ? setSchedule(today.getHours() + 9, today.getMinutes() + 10)
+        process.env.NODE_ENV === 'test'
+          ? setSchedule(today.getHours() + 9, today.getMinutes() + 3)
           : setSchedule(10, 30),
     });
 
