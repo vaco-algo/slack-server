@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
+const setSchedule = require("./utils/setSchedule.js");
 
 const { App } = require("@slack/bolt");
 
@@ -20,9 +21,34 @@ const member = {
   U04F5QP3WE4: "길지문",
 };
 
+const schedule = new Date();
+schedule.setHours(8, 13, 0);
+
+const morningMessage = {
+  token: process.env.SLACK_BOT_TOKEN,
+  channel: "C04ED5A3XHT",
+  blocks: [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King?🔥 \n Click the Join Button!`,
+      },
+      accessory: {
+        type: "button",
+        text: {
+          type: "plain_text",
+          text: "Join",
+        },
+        action_id: "button_click",
+      },
+    },
+  ],
+};
+
 async function sendMorningMessage() {
   try {
-    const result = await app.client.chat.postMessage({
+    const result = await app.client.chat.scheduleMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: "C04ED5A3XHT",
       blocks: [
@@ -42,6 +68,7 @@ async function sendMorningMessage() {
           },
         },
       ],
+      post_at: schedule.getTime() / 1000,
     });
 
     console.log(result);
@@ -95,8 +122,11 @@ schedule.scheduleJob(reviewerMatchRule, function () {
   sendReviewer();
 });
 
+app.message("실행", async ({ message, say }) => {
+  await sendMorningMessage();
+});
+
 app.message("문제 업로드 완료", async ({ message, say }) => {
-  // say() sends a message to the channel where the event was triggered
   await say(
     `Today's algo upload complete.✨ \n\n Please follow the process below. \n 1. git fetch algo main \n2. git merge algo/main`
   );
