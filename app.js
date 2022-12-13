@@ -20,6 +20,8 @@ const member = {
   U04EG0SPEBV: "임현정",
   U04EGUM5ZFH: "최송이",
   U04FM6DECP2: "한아름",
+  U04ERNNE11S: "test1",
+  U04FCUV0DCY: "test2",
 };
 
 async function sendMorningMessage() {
@@ -68,7 +70,11 @@ async function sendMorningMessage() {
 
 async function sendReviewer() {
   try {
+    console.log(joinedAlgoMembers, "what");
     const reviewer = generateRandomReviewer(joinedAlgoMembers);
+
+    if (!reviewer) return;
+
     const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: process.env.MESSAGE_CHANNEL,
@@ -81,18 +87,6 @@ async function sendReviewer() {
   }
 }
 
-app.action("button_click", async ({ body, ack, say }) => {
-  try {
-    joinedAlgoMembers.push(member[body.user.id]);
-    const join = joinedAlgoMembers.join();
-
-    await ack();
-    await say(`<${join}> joined in today's Algo`);
-  } catch (err) {
-    console.log(err);
-  }
-});
-
 let morningSheduleObj = null;
 let reviewerSheduleObj = null;
 
@@ -101,13 +95,13 @@ const scheduleSet = () => {
   const reviewerMatchRule = new schedule.RecurrenceRule();
 
   morningMessageRule.dayOfWeek = [0, 2, 4, 6];
-  morningMessageRule.hour = 14;
-  morningMessageRule.minute = 12;
+  morningMessageRule.hour = 21;
+  morningMessageRule.minute = 00;
   morningMessageRule.tz = "Asia/Seoul";
 
   reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
-  reviewerMatchRule.hour = 14;
-  reviewerMatchRule.minute = 15;
+  reviewerMatchRule.hour = 21;
+  reviewerMatchRule.minute = 30;
   reviewerMatchRule.tz = "Asia/Seoul";
 
   const firstJob = schedule.scheduleJob(morningMessageRule, () => {
@@ -140,11 +134,19 @@ setSchedueler();
 
 app.action("button_click", async ({ body, ack, say }) => {
   try {
-    joinedAlgoMembers.push(member[body.user.id]);
-    const join = joinedAlgoMembers.join();
+    const clickedMember = member[body.user.id];
 
-    await ack();
-    await say(`<${join}> joined in today's Algo`);
+    if (
+      joinedAlgoMembers.find((joinedMember) => joinedMember === clickedMember)
+    ) {
+      await ack();
+      return;
+    } else {
+      joinedAlgoMembers.push(clickedMember);
+
+      await ack();
+      await say(`<${joinedAlgoMembers.join()}> joined in today's Algo`);
+    }
   } catch (err) {
     console.log(err);
   }
@@ -153,24 +155,66 @@ app.action("button_click", async ({ body, ack, say }) => {
 app.message("문제 업로드 완료", async ({ message, say }) => {
   try {
     await say(
-      `Today's algo upload complete.✨ \n\n Please follow the process below. \n 1. git fetch algo main \n2. git merge algo/main`
+      `Today's algo upload complete.✨
+      \n\nPlease follow the process below.
+      \n⚠️git pull algo *problems*`
     );
   } catch (error) {
     console.log("문제 업로드 완료 에러", error);
   }
 });
 
-app.message("내가 누구?", async ({ body, message, say }) => {
+app.message("초기 설정 방법", async ({ message, say }) => {
   try {
     console.log(message);
-    await say(`나는 ${member[body.user.id]}😎`);
+    await say(
+      "1. `$ git clone https://github.com/vaco-algo/vaco-algo-study.git` \n2. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n3. 문제 내려받기 : ⭐️`$ git pull algo problems`⭐️"
+    );
   } catch (error) {
-    console.log("내가 누구? 에러", error);
+    console.log("초기 설정 방법 에러", error);
+  }
+});
+
+app.message("문제 업데이트 방법", async ({ message, say }) => {
+  try {
+    console.log(message);
+    await say("⭐️`$ git pull algo problems`⭐️");
+  } catch (error) {
+    console.log("문제 에러", error);
   }
 });
 
 app.message("스케줄 테스트", async ({ message, say }) => {
   await sendMorningMessage();
+});
+
+app.message("hey", async ({ message, say }) => {
+  try {
+    await say(`
+    🔹picker bot은 매주 일, 화, 목, 토\n
+    9시 30분, 10시 30분에 메세지를 보냅니다.\n
+    🔹picker bot의 명령어 \n
+    1. 초기 설정 방법\n
+    2. 문제 업데이트 방법\n
+    3. 문제 업로드 완료\n
+    를 입력하면 어디든지 나타납니다.\n
+    (다이렉트 메시지 제외, picker bot을 각 채널에 초대하여야 합니다.)
+    `);
+  } catch (error) {
+    console.log("hey", error);
+  }
+});
+
+app.event("app_home_opened", async ({ event, say }) => {
+  await say(`
+  🔹picker bot은 매주 일, 화, 목, 토\n
+  9시 30분, 10시 30분에 메세지를 보냅니다.\n
+  🔹picker bot의 명령어 \n
+  1. 초기 설정 방법\n
+  2. 문제 업데이트 방법\n
+  3. 문제 업로드 완료\n
+  를 입력하면 어디든지 나타납니다. ()
+  `);
 });
 
 app.error((error) => {
