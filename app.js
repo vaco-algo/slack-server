@@ -95,13 +95,13 @@ const scheduleSet = () => {
   const reviewerMatchRule = new schedule.RecurrenceRule();
 
   morningMessageRule.dayOfWeek = [0, 2, 4, 6];
-  morningMessageRule.hour = 21;
-  morningMessageRule.minute = 00;
+  morningMessageRule.hour = 22;
+  morningMessageRule.minute = 50;
   morningMessageRule.tz = "Asia/Seoul";
 
   reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
-  reviewerMatchRule.hour = 21;
-  reviewerMatchRule.minute = 30;
+  reviewerMatchRule.hour = 23;
+  reviewerMatchRule.minute = 00;
   reviewerMatchRule.tz = "Asia/Seoul";
 
   const firstJob = schedule.scheduleJob(morningMessageRule, () => {
