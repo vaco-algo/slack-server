@@ -12,13 +12,20 @@ const joinedAlgoMembers = [];
 
 const member = {
   U04F2A0HT0Q: "공재혁",
-  U04EG0SPEBV: "임현정",
   U04F5QP3WE4: "길지문",
-  U04FCUV0DCY: "test계정",
+  U04EQSZ4MSS: "사공은혜",
+  U04EXF5FSTC: "안형우",
+  U04EGULQY5V: "이세영",
+  U04EQSZ6GHL: "이정진",
+  U04EG0SPEBV: "임현정",
+  U04EGUM5ZFH: "최송이",
+  U04FM6DECP2: "한아름",
 };
 
 async function sendMorningMessage() {
   try {
+    joinedAlgoMembers.length = 0;
+
     const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: process.env.MESSAGE_CHANNEL,
@@ -28,7 +35,7 @@ async function sendMorningMessage() {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King?🔥`,
+            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King?`,
           },
         },
         {
@@ -38,7 +45,7 @@ async function sendMorningMessage() {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "Click the *Join* Button!",
+            text: "Click the *Join* Button!🔥",
           },
           accessory: {
             type: "button",
@@ -75,9 +82,7 @@ async function sendReviewer() {
 }
 
 app.action("button_click", async ({ body, ack, say }) => {
-  console.log("hihihihi");
   try {
-    console.log("click", body);
     joinedAlgoMembers.push(member[body.user.id]);
     const join = joinedAlgoMembers.join();
 
@@ -96,13 +101,13 @@ const scheduleSet = () => {
   const reviewerMatchRule = new schedule.RecurrenceRule();
 
   morningMessageRule.dayOfWeek = [0, 2, 4, 6];
-  morningMessageRule.hour = 9;
-  morningMessageRule.minute = 30;
+  morningMessageRule.hour = 14;
+  morningMessageRule.minute = 12;
   morningMessageRule.tz = "Asia/Seoul";
 
   reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
-  reviewerMatchRule.hour = 10;
-  reviewerMatchRule.minute = 30;
+  reviewerMatchRule.hour = 14;
+  reviewerMatchRule.minute = 15;
   reviewerMatchRule.tz = "Asia/Seoul";
 
   const firstJob = schedule.scheduleJob(morningMessageRule, () => {
@@ -133,6 +138,18 @@ const setSchedueler = () => {
 
 setSchedueler();
 
+app.action("button_click", async ({ body, ack, say }) => {
+  try {
+    joinedAlgoMembers.push(member[body.user.id]);
+    const join = joinedAlgoMembers.join();
+
+    await ack();
+    await say(`<${join}> joined in today's Algo`);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 app.message("문제 업로드 완료", async ({ message, say }) => {
   try {
     await say(
@@ -140,6 +157,15 @@ app.message("문제 업로드 완료", async ({ message, say }) => {
     );
   } catch (error) {
     console.log("문제 업로드 완료 에러", error);
+  }
+});
+
+app.message("내가 누구?", async ({ body, message, say }) => {
+  try {
+    console.log(message);
+    await say(`나는 ${member[body.user.id]}😎`);
+  } catch (error) {
+    console.log("내가 누구? 에러", error);
   }
 });
 
