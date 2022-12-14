@@ -168,7 +168,7 @@ app.message("초기 설정 방법", async ({ message, say }) => {
   try {
     console.log(message);
     await say(
-      "1. `$ git clone https://github.com/vaco-algo/vaco-algo-study.git` \n2. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n3. 문제 내려받기 : ⭐️`$ git pull algo problems`⭐️"
+      "1. `https://github.com/vaco-algo/vaco-algo-study` fork \n2. `$ git clone fork한 레포` \n3. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n4. 문제 내려받기 : ⭐️`$ git pull algo problems`⭐️"
     );
   } catch (error) {
     console.log("초기 설정 방법 에러", error);
