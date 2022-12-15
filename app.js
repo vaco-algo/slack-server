@@ -8,6 +8,18 @@ const app = new App({
   port: process.env.PORT || 3000,
 });
 
+const allMembers = [
+  "공재혁",
+  "길지문",
+  "사공은혜",
+  "안형우",
+  "이세영",
+  "이정진",
+  "임현정",
+  "최송이",
+  "한아름",
+];
+
 const joinedAlgoMembers = [];
 
 const member = {
@@ -186,6 +198,14 @@ app.message("문제 업데이트 방법", async ({ message, say }) => {
 
 app.message("스케줄 테스트", async ({ message, say }) => {
   await sendMorningMessage();
+});
+
+app.message("랜덤 리뷰어", async ({ message, say }) => {
+  const reviewer = generateRandomReviewer(allMembers);
+
+  if (!reviewer) return;
+
+  await say(`⭐️Today's Reviewer \n ${reviewer}`);
 });
 
 app.message("hey", async ({ message, say }) => {
