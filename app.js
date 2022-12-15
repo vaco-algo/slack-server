@@ -1,9 +1,7 @@
 const { App, ExpressReceiver } = require("@slack/bolt");
-const expressApp = require("express");
-const http = require("http");
+const https = require("node:https");
 const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
-const axios = require("axios");
 
 const expressReceiver = new ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -19,9 +17,13 @@ const app = new App({
   port: process.env.PORT || 3000,
 });
 
-const id = setInterval(async () => {
+const id = setInterval(() => {
   if (removeId) clearInterval(removeId);
-  await axios.get("https://vas-slack-server.onrender.com");
+
+  https.get("https://vas-slack-server.onrender.com", (res) => {
+    console.log("statusCode:", res.statusCode);
+    console.log("headers:", res.headers);
+  });
 }, 600000);
 
 const removeId = setInterval(() => {
