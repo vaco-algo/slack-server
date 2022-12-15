@@ -1,4 +1,5 @@
 const { App } = require("@slack/bolt");
+const http = require("http");
 const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
 
@@ -8,17 +9,9 @@ const app = new App({
   port: process.env.PORT || 3000,
 });
 
-const allMembers = [
-  "공재혁",
-  "길지문",
-  "사공은혜",
-  "안형우",
-  "이세영",
-  "이정진",
-  "임현정",
-  "최송이",
-  "한아름",
-];
+setInterval(function () {
+  http.get("https://vas-slack-server.onrender.com");
+}, 600000);
 
 const joinedAlgoMembers = [];
 
@@ -228,12 +221,6 @@ app.message("hey", async ({ message, say }) => {
   } catch (error) {
     console.log("hey", error);
   }
-});
-
-app.event("app_home_opened", async ({ event, say }) => {
-  await say(
-    "🔹picker bot은 매주 일, 화, 목, 토\n9시 30분, 10시 30분에 메세지를 보냅니다.\n🔹picker bot의 명령어 \n1. `초기 설정 방법`\n2. `문제 업데이트 방법`\n3. `문제 업로드 완료`\n를 입력하면 어디든지 나타납니다.\n(다이렉트 메시지 제외, picker bot을 각 채널에 초대하여야 합니다.)"
-  );
 });
 
 app.error((error) => {
