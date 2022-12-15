@@ -122,7 +122,7 @@ const scheduleSet = () => {
   reviewerMatchRule.minute = 30;
   reviewerMatchRule.tz = "Asia/Seoul";
 
-  testRule.dayOfWeek = [0, 1, 2, 3, 4, 5, 6];
+  testRule.dayOfWeek = [1, 3, 5];
   testRule.hour = 10;
   testRule.minute = 30;
   testRule.tz = "Asia/Seoul";
