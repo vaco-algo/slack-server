@@ -180,7 +180,7 @@ app.message("초기 설정 방법", async ({ message, say }) => {
   try {
     console.log(message);
     await say(
-      "1. `https://github.com/vaco-algo/vaco-algo-study` fork \n2. `$ git clone fork한 레포` \n3. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n4. 문제 내려받기 : ⭐️`$ git pull algo problems`⭐️"
+      "1. `https://github.com/vaco-algo/vaco-algo-study` fork \n2. `$ git clone fork한 레포` \n3. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n4. 문제 내려받기 \n⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo problems`⭐️"
     );
   } catch (error) {
     console.log("초기 설정 방법 에러", error);
@@ -190,7 +190,9 @@ app.message("초기 설정 방법", async ({ message, say }) => {
 app.message("문제 업데이트 방법", async ({ message, say }) => {
   try {
     console.log(message);
-    await say("⭐️`$ git pull algo problems`⭐️");
+    await say(
+      "⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo problems`⭐️"
+    );
   } catch (error) {
     console.log("문제 에러", error);
   }
@@ -200,10 +202,20 @@ app.message("스케줄 테스트", async ({ message, say }) => {
   await sendMorningMessage();
 });
 
-app.message("랜덤 리뷰어", async ({ message, say }) => {
-  const reviewer = generateRandomReviewer(allMembers);
+app.message("굿모닝", async ({ message, say }) => {
+  await say(
+    `Good Morning Vas Members!🌼\n Are you ready to become a Algo King? \nPlease add a check emoji✔️`
+  );
+});
 
-  if (!reviewer) return;
+app.message("랜덤 리뷰어", async ({ message, say }) => {
+  let peoples = message.text.match(/\[.*\]/gi);
+
+  if (!peoples) return;
+
+  peoples += "";
+
+  const reviewer = generateRandomReviewer(peoples.slice(1, -1).split(","));
 
   await say(`⭐️Today's Reviewer \n ${reviewer}`);
 });
