@@ -42,7 +42,7 @@ async function sendMorningMessage() {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King?`,
+            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King? \n(join 클릭 후 메시지 안뜨면 체크 이모지 추가해주세요🥹)`,
           },
         },
         {
