@@ -1,34 +1,12 @@
-const { App, ExpressReceiver } = require("@slack/bolt");
-const https = require("node:https");
+const { App } = require("@slack/bolt");
 const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
-
-const expressReceiver = new ExpressReceiver({
-  signingSecret: process.env.SLACK_SIGNING_SECRET,
-});
-
-expressReceiver.router.get("/", (req, res) => {
-  res.send({ data: "hello" });
-});
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   port: process.env.PORT || 3000,
 });
-
-const id = setInterval(() => {
-  if (removeId) clearInterval(removeId);
-
-  https.get("https://vas-slack-server.onrender.com", (res) => {
-    console.log("statusCode:", res.statusCode);
-    console.log("headers:", res.headers);
-  });
-}, 600000);
-
-const removeId = setInterval(() => {
-  clearInterval(id);
-}, 650000);
 
 const joinedAlgoMembers = [];
 
@@ -90,6 +68,22 @@ async function sendMorningMessage() {
   }
 }
 
+async function testMessage() {
+  try {
+    joinedAlgoMembers.length = 0;
+
+    const result = await app.client.chat.postMessage({
+      token: process.env.SLACK_BOT_TOKEN,
+      channel: process.env.MESSAGE_CHANNEL,
+      text: "굿모닝~ 픽봇 스케줄러 테스트 중입니다.",
+    });
+
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function sendReviewer() {
   try {
     console.log(joinedAlgoMembers, "what");
@@ -111,10 +105,12 @@ async function sendReviewer() {
 
 let morningSheduleObj = null;
 let reviewerSheduleObj = null;
+let testSheduleObj = null;
 
 const scheduleSet = () => {
   const morningMessageRule = new schedule.RecurrenceRule();
   const reviewerMatchRule = new schedule.RecurrenceRule();
+  const testRule = new schedule.RecurrenceRule();
 
   morningMessageRule.dayOfWeek = [0, 2, 4, 6];
   morningMessageRule.hour = 09;
@@ -126,6 +122,11 @@ const scheduleSet = () => {
   reviewerMatchRule.minute = 30;
   reviewerMatchRule.tz = "Asia/Seoul";
 
+  testRule.dayOfWeek = [0, 1, 2, 3, 4, 5, 6];
+  testRule.hour = 10;
+  testRule.minute = 30;
+  testRule.tz = "Asia/Seoul";
+
   const firstJob = schedule.scheduleJob(morningMessageRule, () => {
     console.log("스케줄 스타트");
     sendMorningMessage();
@@ -136,14 +137,25 @@ const scheduleSet = () => {
     sendReviewer();
   });
 
+  const testJob = schedule.scheduleJob(testRule, () => {
+    console.log("테스트 스타트");
+    testMessage();
+  });
+
   morningSheduleObj = firstJob;
   reviewerSheduleObj = secondJob;
+  testSheduleObj = testJob;
 };
 
 const cancel = () => {
-  if (morningSheduleObj !== null && reviewerSheduleObj !== null) {
+  if (
+    morningSheduleObj !== null &&
+    reviewerSheduleObj !== null &&
+    testSheduleObj !== null
+  ) {
     morningSheduleObj.cancel();
     reviewerSheduleObj.cancel();
+    testSheduleObj.cancel();
   }
 };
 
