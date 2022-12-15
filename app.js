@@ -42,7 +42,7 @@ async function sendMorningMessage() {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King? \n(join 클릭 후 메시지 안뜨면 체크 이모지 추가해주세요🥹)`,
+            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King? \n(Join 클릭 후 메시지 안뜨면 체크 이모지 추가해주세요🥹)`,
           },
         },
         {
@@ -191,14 +191,8 @@ app.message("문제 업데이트 방법", async ({ message, say }) => {
   }
 });
 
-app.message("스케줄 테스트", async ({ message, say }) => {
-  await sendMorningMessage();
-});
-
 app.message("굿모닝", async ({ message, say }) => {
-  await say(
-    `Good Morning Vas Members!🌼\n Are you ready to become a Algo King? \nPlease add a check emoji✔️`
-  );
+  await sendMorningMessage();
 });
 
 app.message("랜덤 리뷰어", async ({ message, say }) => {
