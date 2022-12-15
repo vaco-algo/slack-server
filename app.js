@@ -1,7 +1,17 @@
-const { App } = require("@slack/bolt");
+const { App, ExpressReceiver } = require("@slack/bolt");
+const expressApp = require("express");
 const http = require("http");
 const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
+const axios = require("axios");
+
+const expressReceiver = new ExpressReceiver({
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
+});
+
+expressReceiver.router.get("/", (req, res) => {
+  res.send({ data: "hello" });
+});
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -9,9 +19,14 @@ const app = new App({
   port: process.env.PORT || 3000,
 });
 
-setInterval(function () {
-  http.get("https://vas-slack-server.onrender.com");
+const id = setInterval(async () => {
+  if (removeId) clearInterval(removeId);
+  await axios.get("https://vas-slack-server.onrender.com");
 }, 600000);
+
+const removeId = setInterval(() => {
+  clearInterval(id);
+}, 650000);
 
 const joinedAlgoMembers = [];
 
@@ -42,7 +57,7 @@ async function sendMorningMessage() {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King? \n(Join 클릭 후 메시지 안뜨면 체크 이모지 추가해주세요🥹)`,
+            text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King? \n(Join 클릭 후 메시지 안뜨면 체크 이모지 추가해주세요!)`,
           },
         },
         {
@@ -157,6 +172,14 @@ app.action("button_click", async ({ body, ack, say }) => {
   }
 });
 
+app.message("픽봇 일어나", async ({ message, say }) => {
+  try {
+    await say("Good morning~");
+  } catch (error) {
+    console.log("문제 업로드 완료 에러", error);
+  }
+});
+
 app.message("문제 업로드 완료", async ({ message, say }) => {
   try {
     await say(
@@ -210,7 +233,7 @@ app.message("랜덤 리뷰어", async ({ message, say }) => {
 app.message("hey", async ({ message, say }) => {
   try {
     await say(
-      "🔹picker bot은 매주 일, 화, 목, 토\n9시 30분, 10시 30분에 메세지를 보냅니다.\n🔹picker bot의 명령어 \n1. `초기 설정 방법`\n2. `문제 업데이트 방법`\n3. `문제 업로드 완료`\n를 입력하면 어디든지 나타납니다.\n(다이렉트 메시지 제외, picker bot을 각 채널에 초대하여야 합니다.)"
+      "🔹picker bot은 매주 일, 화, 목, 토\n9시 30분, 10시 30분에 메세지를 보냅니다.\n🔹picker bot의 명령어 \n1. `초기 설정 방법`\n2. `문제 업데이트 방법`\n3. `문제 업로드 완료 \n4. 픽봇 일어나(잠든 픽봇 깨우기) \n5.굿모닝(알고리즘 푸는 사람 모으기) \n6. 랜덤 리뷰어`\n를 입력하면 어디든지 나타납니다.\n(다이렉트 메시지 제외, picker bot을 각 채널에 초대하여야 합니다.)"
     );
   } catch (error) {
     console.log("hey", error);
