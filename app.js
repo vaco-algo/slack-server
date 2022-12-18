@@ -110,7 +110,7 @@ let testSheduleObj = null;
 const scheduleSet = () => {
   const morningMessageRule = new schedule.RecurrenceRule();
   const reviewerMatchRule = new schedule.RecurrenceRule();
-  const testRule = new schedule.RecurrenceRule();
+  // const testRule = new schedule.RecurrenceRule();
 
   morningMessageRule.dayOfWeek = [0, 2, 4, 6];
   morningMessageRule.hour = 09;
@@ -122,10 +122,10 @@ const scheduleSet = () => {
   reviewerMatchRule.minute = 30;
   reviewerMatchRule.tz = "Asia/Seoul";
 
-  testRule.dayOfWeek = [1, 3, 5];
-  testRule.hour = 10;
-  testRule.minute = 30;
-  testRule.tz = "Asia/Seoul";
+  // testRule.dayOfWeek = [1, 3, 5];
+  // testRule.hour = 10;
+  // testRule.minute = 30;
+  // testRule.tz = "Asia/Seoul";
 
   const firstJob = schedule.scheduleJob(morningMessageRule, () => {
     console.log("스케줄 스타트");
@@ -137,10 +137,10 @@ const scheduleSet = () => {
     sendReviewer();
   });
 
-  const testJob = schedule.scheduleJob(testRule, () => {
-    console.log("테스트 스타트");
-    testMessage();
-  });
+  // const testJob = schedule.scheduleJob(testRule, () => {
+  //   console.log("테스트 스타트");
+  //   testMessage();
+  // });
 
   morningSheduleObj = firstJob;
   reviewerSheduleObj = secondJob;
@@ -199,7 +199,8 @@ app.message("문제 업로드 완료", async ({ message, say }) => {
     await say(
       `Today's algo upload complete.✨
       \n\nPlease follow the process below.
-      \n⚠️git pull algo *problems*`
+      \n⚠️git fetch algo *problems*
+      \n⚠️git merge algo/problems`
     );
   } catch (error) {
     console.log("문제 업로드 완료 에러", error);
