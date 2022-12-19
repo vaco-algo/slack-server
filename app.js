@@ -68,14 +68,14 @@ async function sendMorningMessage() {
   }
 }
 
-async function testMessage() {
+async function timeOutMessage() {
   try {
     joinedAlgoMembers.length = 0;
 
     const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: process.env.MESSAGE_CHANNEL,
-      text: "굿모닝~ 픽봇 스케줄러 테스트 중입니다.",
+      text: `✨우리가 우리 자신에게 실패를 허락 할 때, 우리는 동시에 우리 자신에게 탁월함을 허락한다. - Eloise Ristad \n 🌼 PR을 완료해주세요!`,
     });
 
     console.log(result);
@@ -105,27 +105,27 @@ async function sendReviewer() {
 
 let morningSheduleObj = null;
 let reviewerSheduleObj = null;
-let testSheduleObj = null;
+let timeOutMessageSheduleObj = null;
 
 const scheduleSet = () => {
   const morningMessageRule = new schedule.RecurrenceRule();
   const reviewerMatchRule = new schedule.RecurrenceRule();
-  // const testRule = new schedule.RecurrenceRule();
+  const timeOutMesssageRule = new schedule.RecurrenceRule();
 
-  morningMessageRule.dayOfWeek = [0, 2, 4, 6];
+  morningMessageRule.dayOfWeek = [2, 4];
   morningMessageRule.hour = 09;
   morningMessageRule.minute = 30;
   morningMessageRule.tz = "Asia/Seoul";
 
-  reviewerMatchRule.dayOfWeek = [0, 2, 4, 6];
+  reviewerMatchRule.dayOfWeek = [2, 4];
   reviewerMatchRule.hour = 10;
   reviewerMatchRule.minute = 30;
   reviewerMatchRule.tz = "Asia/Seoul";
 
-  // testRule.dayOfWeek = [1, 3, 5];
-  // testRule.hour = 10;
-  // testRule.minute = 30;
-  // testRule.tz = "Asia/Seoul";
+  timeOutMesssageRule.dayOfWeek = [2, 4];
+  timeOutMesssageRule.hour = 12;
+  timeOutMesssageRule.minute = 30;
+  timeOutMesssageRule.tz = "Asia/Seoul";
 
   const firstJob = schedule.scheduleJob(morningMessageRule, () => {
     console.log("스케줄 스타트");
@@ -137,25 +137,25 @@ const scheduleSet = () => {
     sendReviewer();
   });
 
-  // const testJob = schedule.scheduleJob(testRule, () => {
-  //   console.log("테스트 스타트");
-  //   testMessage();
-  // });
+  const thirdJob = schedule.scheduleJob(testRule, () => {
+    console.log("타임아웃 메시지 스타트");
+    timeOutMessage();
+  });
 
   morningSheduleObj = firstJob;
   reviewerSheduleObj = secondJob;
-  testSheduleObj = testJob;
+  timeOutMessageSheduleObj = thirdJob;
 };
 
 const cancel = () => {
   if (
     morningSheduleObj !== null &&
     reviewerSheduleObj !== null &&
-    testSheduleObj !== null
+    timeOutMessageSheduleObj !== null
   ) {
     morningSheduleObj.cancel();
     reviewerSheduleObj.cancel();
-    testSheduleObj.cancel();
+    timeOutMessageSheduleObj.cancel();
   }
 };
 
