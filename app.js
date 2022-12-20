@@ -135,7 +135,7 @@ const scheduleSet = () => {
     sendReviewer();
   });
 
-  const thirdJob = schedule.scheduleJob(testRule, () => {
+  const thirdJob = schedule.scheduleJob(timeOutMesssageRule, () => {
     console.log("타임아웃 메시지 스타트");
     timeOutMessage();
   });
