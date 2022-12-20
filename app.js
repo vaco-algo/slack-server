@@ -20,8 +20,6 @@ const member = {
   U04EG0SPEBV: "임현정",
   U04EGUM5ZFH: "최송이",
   U04FM6DECP2: "한아름",
-  U04ERNNE11S: "test1",
-  U04FCUV0DCY: "test2",
 };
 
 async function sendMorningMessage() {
