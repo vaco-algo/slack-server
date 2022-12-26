@@ -28,7 +28,7 @@ async function wakeUp() {
 
     const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
-      channel: 'C04F3TS3C73',
+      channel: "C04F3TS3C73",
       text: "Good Morning",
     });
 
@@ -108,7 +108,7 @@ async function sendReviewer() {
     const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: process.env.MESSAGE_CHANNEL,
-      text: `⭐️Today's Reviewer \n ${reviewer}`,
+      text: `⭐️Today's Reviewer \n ${reviewer} \n(리뷰어 잘못 설정되어있을 시 "랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
     });
 
     console.log(result);
@@ -118,67 +118,50 @@ async function sendReviewer() {
 }
 
 // let morningSheduleObj = null;
-let reviewerSheduleObj = null;
-let timeOutMessageSheduleObj = null;
+// let reviewerSheduleObj = null;
+// let timeOutMessageSheduleObj = null;
 
-const scheduleSet = () => {
-  // const morningMessageRule = new schedule.RecurrenceRule();
-  const reviewerMatchRule = new schedule.RecurrenceRule();
-  const timeOutMesssageRule = new schedule.RecurrenceRule();
+// const scheduleSet = () => {
+//   const reviewerMatchRule = new schedule.RecurrenceRule();
+//   const timeOutMesssageRule = new schedule.RecurrenceRule();
 
-  // morningMessageRule.dayOfWeek = [2, 4];
-  // morningMessageRule.hour = 09;
-  // morningMessageRule.minute = 30;
-  // morningMessageRule.tz = "Asia/Seoul";
+//   reviewerMatchRule.dayOfWeek = [2, 4];
+//   reviewerMatchRule.hour = 10;
+//   reviewerMatchRule.minute = 30;
+//   reviewerMatchRule.tz = "Asia/Seoul";
 
-  reviewerMatchRule.dayOfWeek = [2, 4];
-  reviewerMatchRule.hour = 10;
-  reviewerMatchRule.minute = 30;
-  reviewerMatchRule.tz = "Asia/Seoul";
+//   timeOutMesssageRule.dayOfWeek = [2, 4];
+//   timeOutMesssageRule.hour = 12;
+//   timeOutMesssageRule.minute = 30;
+//   timeOutMesssageRule.tz = "Asia/Seoul";
 
-  timeOutMesssageRule.dayOfWeek = [2, 4];
-  timeOutMesssageRule.hour = 12;
-  timeOutMesssageRule.minute = 30;
-  timeOutMesssageRule.tz = "Asia/Seoul";
+//   const secondJob = schedule.scheduleJob(reviewerMatchRule, () => {
+//     console.log("스케줄 스타트");
+//     sendReviewer();
+//   });
 
-  // const firstJob = schedule.scheduleJob(morningMessageRule, () => {
-  //   console.log("스케줄 스타트");
-  //   sendMorningMessage();
-  // });
+//   const thirdJob = schedule.scheduleJob(timeOutMesssageRule, () => {
+//     console.log("타임아웃 메시지 스타트");
+//     timeOutMessage();
+//   });
 
-  const secondJob = schedule.scheduleJob(reviewerMatchRule, () => {
-    console.log("스케줄 스타트");
-    sendReviewer();
-  });
+//   reviewerSheduleObj = secondJob;
+//   timeOutMessageSheduleObj = thirdJob;
+// };
 
-  const thirdJob = schedule.scheduleJob(timeOutMesssageRule, () => {
-    console.log("타임아웃 메시지 스타트");
-    timeOutMessage();
-  });
+// const cancel = () => {
+//   if (reviewerSheduleObj !== null && timeOutMessageSheduleObj !== null) {
+//     reviewerSheduleObj.cancel();
+//     timeOutMessageSheduleObj.cancel();
+//   }
+// };
 
-  // morningSheduleObj = firstJob;
-  reviewerSheduleObj = secondJob;
-  timeOutMessageSheduleObj = thirdJob;
-};
+// const setSchedueler = () => {
+//   cancel();
+//   scheduleSet();
+// };
 
-const cancel = () => {
-  if (
-    // morningSheduleObj !== null &&
-    reviewerSheduleObj !== null &&
-    timeOutMessageSheduleObj !== null
-  ) {
-    // morningSheduleObj.cancel();
-    reviewerSheduleObj.cancel();
-    timeOutMessageSheduleObj.cancel();
-  }
-};
-
-const setSchedueler = () => {
-  cancel();
-  scheduleSet();
-};
-
-setSchedueler();
+// setSchedueler();
 
 app.action("button_click", async ({ body, ack, say }) => {
   try {
@@ -197,14 +180,6 @@ app.action("button_click", async ({ body, ack, say }) => {
     }
   } catch (err) {
     console.log(err);
-  }
-});
-
-app.message("픽봇 일어나", async ({ message, say }) => {
-  try {
-    await say("Good morning~");
-  } catch (error) {
-    console.log("문제 업로드 완료 에러", error);
   }
 });
 
@@ -249,6 +224,14 @@ app.message("일어나", async ({ message, say }) => {
 
 app.message("굿모닝", async ({ message, say }) => {
   await sendMorningMessage();
+});
+
+app.message("오늘의 리뷰어", async ({ message, say }) => {
+  await sendReviewer();
+});
+
+app.message("타임아웃", async ({ message, say }) => {
+  await timeOutMessage();
 });
 
 app.message("랜덤 리뷰어", async ({ message, say }) => {
