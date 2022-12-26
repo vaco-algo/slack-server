@@ -117,7 +117,7 @@ async function sendReviewer() {
   }
 }
 
-let morningSheduleObj = null;
+// let morningSheduleObj = null;
 let reviewerSheduleObj = null;
 let timeOutMessageSheduleObj = null;
 
@@ -156,18 +156,18 @@ const scheduleSet = () => {
     timeOutMessage();
   });
 
-  morningSheduleObj = firstJob;
+  // morningSheduleObj = firstJob;
   reviewerSheduleObj = secondJob;
   timeOutMessageSheduleObj = thirdJob;
 };
 
 const cancel = () => {
   if (
-    morningSheduleObj !== null &&
+    // morningSheduleObj !== null &&
     reviewerSheduleObj !== null &&
     timeOutMessageSheduleObj !== null
   ) {
-    morningSheduleObj.cancel();
+    // morningSheduleObj.cancel();
     reviewerSheduleObj.cancel();
     timeOutMessageSheduleObj.cancel();
   }
