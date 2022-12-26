@@ -22,6 +22,22 @@ const member = {
   U04FM6DECP2: "한아름",
 };
 
+async function wakeUp() {
+  try {
+    joinedAlgoMembers.length = 0;
+
+    const result = await app.client.chat.postMessage({
+      token: process.env.SLACK_BOT_TOKEN,
+      channel: 'C04F3TS3C73',
+      text: "Good Morning",
+    });
+
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function sendMorningMessage() {
   try {
     joinedAlgoMembers.length = 0;
@@ -106,14 +122,14 @@ let reviewerSheduleObj = null;
 let timeOutMessageSheduleObj = null;
 
 const scheduleSet = () => {
-  const morningMessageRule = new schedule.RecurrenceRule();
+  // const morningMessageRule = new schedule.RecurrenceRule();
   const reviewerMatchRule = new schedule.RecurrenceRule();
   const timeOutMesssageRule = new schedule.RecurrenceRule();
 
-  morningMessageRule.dayOfWeek = [2, 4];
-  morningMessageRule.hour = 09;
-  morningMessageRule.minute = 30;
-  morningMessageRule.tz = "Asia/Seoul";
+  // morningMessageRule.dayOfWeek = [2, 4];
+  // morningMessageRule.hour = 09;
+  // morningMessageRule.minute = 30;
+  // morningMessageRule.tz = "Asia/Seoul";
 
   reviewerMatchRule.dayOfWeek = [2, 4];
   reviewerMatchRule.hour = 10;
@@ -125,10 +141,10 @@ const scheduleSet = () => {
   timeOutMesssageRule.minute = 30;
   timeOutMesssageRule.tz = "Asia/Seoul";
 
-  const firstJob = schedule.scheduleJob(morningMessageRule, () => {
-    console.log("스케줄 스타트");
-    sendMorningMessage();
-  });
+  // const firstJob = schedule.scheduleJob(morningMessageRule, () => {
+  //   console.log("스케줄 스타트");
+  //   sendMorningMessage();
+  // });
 
   const secondJob = schedule.scheduleJob(reviewerMatchRule, () => {
     console.log("스케줄 스타트");
@@ -225,6 +241,10 @@ app.message("문제 업데이트 방법", async ({ message, say }) => {
   } catch (error) {
     console.log("문제 에러", error);
   }
+});
+
+app.message("일어나", async ({ message, say }) => {
+  await wakeUp();
 });
 
 app.message("굿모닝", async ({ message, say }) => {
