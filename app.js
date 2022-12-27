@@ -185,12 +185,14 @@ app.action("button_click", async ({ body, ack, say }) => {
 
 app.message("문제 업로드 완료", async ({ message, say }) => {
   try {
-    await say(
-      `Today's algo upload complete.✨
+    await app.client.chat.postMessage({
+      token: process.env.SLACK_BOT_TOKEN,
+      channel: process.env.MESSAGE_CHANNEL,
+      text: `Today's algo upload complete.✨
       \n\nPlease follow the process below.
       \n⚠️git fetch algo *problems*
-      \n⚠️git merge algo/problems`
-    );
+      \n⚠️git merge algo/problems`,
+    });
   } catch (error) {
     console.log("문제 업로드 완료 에러", error);
   }
