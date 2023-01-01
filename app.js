@@ -1,6 +1,11 @@
 const { App } = require("@slack/bolt");
 const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
+const {
+  ToadScheduler,
+  SimpleIntervalJob,
+  AsyncTask,
+} = require("toad-scheduler");
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -116,6 +121,64 @@ async function sendReviewer() {
     console.error(error);
   }
 }
+
+async function sendReviewer2(arr) {
+  try {
+    console.log(joinedAlgoMembers, "what");
+    const reviewer = generateRandomReviewer(joinedAlgoMembers);
+
+    if (!reviewer) return;
+
+    const result = await app.client.chat.postMessage({
+      token: process.env.SLACK_BOT_TOKEN,
+      channel: process.env.MESSAGE_CHANNEL,
+      text: `⭐️Today's Reviewer \n ${reviewer} \n(리뷰어 잘못 설정되어있을 시 "랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
+    });
+
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const scheduler = new ToadScheduler();
+
+async function wakeUp() {
+  try {
+    joinedAlgoMembers.length = 0;
+
+    const result = await app.client.chat.postMessage({
+      token: process.env.SLACK_BOT_TOKEN,
+      channel: "C04F3TS3C73",
+      text: "Good Morning",
+    });
+
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const task = new AsyncTask(
+  "simple task",
+  () => {
+    joinedAlgoMembers.length = 0;
+    return app.client.chat.postMessage({
+      token: process.env.SLACK_BOT_TOKEN,
+      channel: "C04F3TS3C73",
+      text: "Good Morning",
+    });
+  },
+  (err) => {
+    console.log(err, "error");
+  }
+);
+const job = new SimpleIntervalJob({ minutes: 3 }, task);
+
+scheduler.addSimpleIntervalJob(job);
+
+// when stopping your app
+scheduler.stop();
 
 // let morningSheduleObj = null;
 // let reviewerSheduleObj = null;
