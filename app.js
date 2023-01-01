@@ -1,11 +1,6 @@
 const { App } = require("@slack/bolt");
 const schedule = require("node-schedule");
 const generateRandomReviewer = require("./utils/generateRandomReviewer.js");
-const {
-  ToadScheduler,
-  SimpleIntervalJob,
-  AsyncTask,
-} = require("toad-scheduler");
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -27,17 +22,22 @@ const member = {
   U04FM6DECP2: "한아름",
 };
 
-async function wakeUp() {
+async function wakeupServer() {
   try {
+    const now = new Date();
+    const utcNow = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+    const koreaTimeDiff = 9 * 60 * 60 * 1000;
+    const koreaNowTime = Date(utcNow + koreaTimeDiff).slice(16, 24);
+
     joinedAlgoMembers.length = 0;
 
-    const result = await app.client.chat.postMessage({
+    await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: "C04F3TS3C73",
-      text: "Good Morning",
+      text: `🔹 ${koreaNowTime}`,
     });
 
-    console.log(result);
+    console.log("wakeup");
   } catch (error) {
     console.error(error);
   }
@@ -122,109 +122,72 @@ async function sendReviewer() {
   }
 }
 
-async function sendReviewer2(arr) {
-  try {
-    console.log(joinedAlgoMembers, "what");
-    const reviewer = generateRandomReviewer(joinedAlgoMembers);
+let wakeupServerObj = null;
+let morningSheduleObj = null;
+let reviewerSheduleObj = null;
+let timeOutMessageSheduleObj = null;
 
-    if (!reviewer) return;
+const scheduleSet = () => {
+  const morningMessagehRule = new schedule.RecurrenceRule();
+  const reviewerMatchRule = new schedule.RecurrenceRule();
+  const timeOutMesssageRule = new schedule.RecurrenceRule();
+  const wakeupRule = new schedule.RecurrenceRule();
 
-    const result = await app.client.chat.postMessage({
-      token: process.env.SLACK_BOT_TOKEN,
-      channel: process.env.MESSAGE_CHANNEL,
-      text: `⭐️Today's Reviewer \n ${reviewer} \n(리뷰어 잘못 설정되어있을 시 "랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
-    });
+  wakeupRule.minute = new schedule.Range(0, 59, 14);
 
-    console.log(result);
-  } catch (error) {
-    console.error(error);
-  }
-}
+  morningMessagehRule.dayOfWeek = [2, 4];
+  morningMessagehRule.hour = 9;
+  morningMessagehRule.minute = 30;
+  morningMessagehRule.tz = "Asia/Seoul";
 
-const scheduler = new ToadScheduler();
+  reviewerMatchRule.dayOfWeek = [2, 4];
+  reviewerMatchRule.hour = 10;
+  reviewerMatchRule.minute = 30;
+  reviewerMatchRule.tz = "Asia/Seoul";
 
-async function wakeUp() {
-  try {
-    joinedAlgoMembers.length = 0;
+  timeOutMesssageRule.dayOfWeek = [2, 4];
+  timeOutMesssageRule.hour = 12;
+  timeOutMesssageRule.minute = 30;
+  timeOutMesssageRule.tz = "Asia/Seoul";
 
-    const result = await app.client.chat.postMessage({
-      token: process.env.SLACK_BOT_TOKEN,
-      channel: "C04F3TS3C73",
-      text: "Good Morning",
-    });
+  const wakeupServerJob = schedule.scheduleJob(wakeupRule, () => {
+    wakeupServer();
+  });
 
-    console.log(result);
-  } catch (error) {
-    console.error(error);
-  }
-}
+  const fisthJob = schedule.scheduleJob(reviewerMatchRule, () => {
+    console.log("모닝 메시지 스타트");
+    sendReviewer();
+  });
 
-const task = new AsyncTask(
-  "simple task",
-  () => {
-    joinedAlgoMembers.length = 0;
-    return app.client.chat.postMessage({
-      token: process.env.SLACK_BOT_TOKEN,
-      channel: "C04F3TS3C73",
-      text: "Good Morning",
-    });
-  },
-  (err) => {
-    console.log(err, "error");
-  }
-);
-const job = new SimpleIntervalJob({ minutes: 3 }, task);
+  const secondJob = schedule.scheduleJob(reviewerMatchRule, () => {
+    console.log("리뷰어 매치 스타트");
+    sendReviewer();
+  });
 
-scheduler.addSimpleIntervalJob(job);
+  const thirdJob = schedule.scheduleJob(timeOutMesssageRule, () => {
+    console.log("타임아웃 메시지 스타트");
+    timeOutMessage();
+  });
 
-// when stopping your app
-scheduler.stop();
+  wakeupServerObj = wakeupServerJob;
+  morningSheduleObj = fisthJob;
+  reviewerSheduleObj = secondJob;
+  timeOutMessageSheduleObj = thirdJob;
+};
 
-// let morningSheduleObj = null;
-// let reviewerSheduleObj = null;
-// let timeOutMessageSheduleObj = null;
+const cancel = () => {
+  if (wakeupServerObj) wakeupServerObj.cancel();
+  if (morningSheduleObj) morningSheduleObj.cancel();
+  if (reviewerSheduleObj) reviewerSheduleObj.cancel();
+  if (timeOutMessageSheduleObj) timeOutMessageSheduleObj.cancel();
+};
 
-// const scheduleSet = () => {
-//   const reviewerMatchRule = new schedule.RecurrenceRule();
-//   const timeOutMesssageRule = new schedule.RecurrenceRule();
+const setSchedueler = () => {
+  cancel();
+  scheduleSet();
+};
 
-//   reviewerMatchRule.dayOfWeek = [2, 4];
-//   reviewerMatchRule.hour = 10;
-//   reviewerMatchRule.minute = 30;
-//   reviewerMatchRule.tz = "Asia/Seoul";
-
-//   timeOutMesssageRule.dayOfWeek = [2, 4];
-//   timeOutMesssageRule.hour = 12;
-//   timeOutMesssageRule.minute = 30;
-//   timeOutMesssageRule.tz = "Asia/Seoul";
-
-//   const secondJob = schedule.scheduleJob(reviewerMatchRule, () => {
-//     console.log("스케줄 스타트");
-//     sendReviewer();
-//   });
-
-//   const thirdJob = schedule.scheduleJob(timeOutMesssageRule, () => {
-//     console.log("타임아웃 메시지 스타트");
-//     timeOutMessage();
-//   });
-
-//   reviewerSheduleObj = secondJob;
-//   timeOutMessageSheduleObj = thirdJob;
-// };
-
-// const cancel = () => {
-//   if (reviewerSheduleObj !== null && timeOutMessageSheduleObj !== null) {
-//     reviewerSheduleObj.cancel();
-//     timeOutMessageSheduleObj.cancel();
-//   }
-// };
-
-// const setSchedueler = () => {
-//   cancel();
-//   scheduleSet();
-// };
-
-// setSchedueler();
+setSchedueler();
 
 app.action("button_click", async ({ body, ack, say }) => {
   try {
@@ -284,7 +247,7 @@ app.message("문제 업데이트 방법", async ({ message, say }) => {
 });
 
 app.message("일어나", async ({ message, say }) => {
-  await wakeUp();
+  await wakeupServer();
 });
 
 app.message("굿모닝", async ({ message, say }) => {
