@@ -156,7 +156,7 @@ const scheduleSet = () => {
 
   const fisthJob = schedule.scheduleJob(morningMessagehRule, () => {
     console.log("모닝 메시지 스타트");
-    sendReviewer();
+    sendMorningMessage();
   });
 
   const secondJob = schedule.scheduleJob(reviewerMatchRule, () => {
