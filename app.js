@@ -154,7 +154,7 @@ const scheduleSet = () => {
     wakeupServer();
   });
 
-  const fisthJob = schedule.scheduleJob(reviewerMatchRule, () => {
+  const fisthJob = schedule.scheduleJob(morningMessagehRule, () => {
     console.log("모닝 메시지 스타트");
     sendReviewer();
   });
