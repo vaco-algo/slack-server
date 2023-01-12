@@ -29,8 +29,6 @@ async function wakeupServer() {
     const koreaTimeDiff = 9 * 60 * 60 * 1000;
     const koreaNowTime = Date(utcNow + koreaTimeDiff).slice(16, 24);
 
-    joinedAlgoMembers.length = 0;
-
     await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: "C04F3TS3C73",
