@@ -8,15 +8,18 @@ const app = new App({
   port: process.env.PORT || 3000,
 });
 
-const slackFuncs = new SlackFunctions(app);
-const schedulerModule = new SetScheduler(slackFuncs);
+let slackFuncs;
+let schedulerModule;
 
-(function () {
+(async () => {
+  await app.start();
+
+  slackFuncs = new SlackFunctions(app);
+  schedulerModule = new SetScheduler(slackFuncs);
+
   schedulerModule.initializeJob();
-
-  setTimeout(() => {
-    schedulerModule.setScheduling();
-  }, 50000);
+  schedulerModule.setScheduling();
+  console.log("⚡️ Bolt app is running!");
 })();
 
 app.action("button_click", async ({ body, ack, say }) => {
@@ -60,11 +63,7 @@ app.message("문제테스트", async () => {
 });
 
 app.error((error) => {
+  schedulerModule.initializeJob();
+  console.log("스케줄 제거");
   console.error(error);
 });
-
-(async () => {
-  await app.start();
-
-  console.log("⚡️ Bolt app is running!");
-})();
