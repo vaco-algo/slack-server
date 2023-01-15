@@ -5,7 +5,7 @@ const member = require("../constants/member.js");
 const joinedAlgoMembers = [];
 
 const getLeetcodeUrl = async () => {
-  const { data } = await axios.get("https://leetcoder.onrender.com");
+  const { data } = await axios.get("https://leetcoder-rc2k.onrender.com");
 
   return data;
 };

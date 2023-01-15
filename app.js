@@ -13,7 +13,10 @@ const schedulerModule = new SetScheduler(slackFuncs);
 
 (function () {
   schedulerModule.initializeJob();
-  schedulerModule.setScheduling();
+
+  setTimeout(() => {
+    schedulerModule.setScheduling();
+  }, 50000);
 })();
 
 app.action("button_click", async ({ body, ack, say }) => {
@@ -61,7 +64,7 @@ app.error((error) => {
 });
 
 (async () => {
-  await slackFuncs.app.start();
+  await app.start();
 
   console.log("⚡️ Bolt app is running!");
 })();
