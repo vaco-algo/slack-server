@@ -5,6 +5,28 @@ const SlackFunctions = require("./utils/slackFunctions");
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
+  customRoutes: [
+    {
+      path: "/",
+      method: ["GET"],
+      handler: async (_, res) => {
+        console.log("root");
+
+        res.writeHead(200);
+        res.end("root");
+      },
+    },
+    {
+      path: "/wakeup",
+      method: ["GET"],
+      handler: async (_, res) => {
+        console.log("wakeup");
+
+        res.writeHead(200);
+        res.end("server wakeup");
+      },
+    },
+  ],
   port: process.env.PORT || 3000,
 });
 
@@ -12,26 +34,31 @@ let slackFuncs;
 let schedulerModule;
 
 (async () => {
-  await app.start();
+  try {
+    await app.start();
 
-  slackFuncs = new SlackFunctions(app);
-  schedulerModule = new SetScheduler(slackFuncs);
+    slackFuncs = new SlackFunctions(app);
+    schedulerModule = new SetScheduler(slackFuncs);
 
-  schedulerModule.initializeJob();
-  schedulerModule.setScheduling();
-  console.log("⚡️ Bolt app is running!");
+    schedulerModule.initializeJob();
+    schedulerModule.setScheduling();
+
+    console.log("⚡️ Bolt app is running!");
+  } catch (err) {
+    console.log("app 실행 에러", err);
+  }
 })();
 
 app.action("button_click", async ({ body, ack, say }) => {
   await slackFuncs.clickButton({ body, ack, say });
 });
 
-app.message("초기 설정 방법", async ({ message, say }) => {
-  await slackFuncs.initialSettingMethodMessage({ message, say });
+app.message("초기 설정 방법", async ({ body }) => {
+  await slackFuncs.initialSettingMethodMessage({ body });
 });
 
-app.message("문제 업데이트 방법", async ({ message, say }) => {
-  await slackFuncs.fethProblem({ message, say });
+app.message("문제 업데이트 방법", async ({ body }) => {
+  await slackFuncs.fethProblem({ body });
 });
 
 app.message("일어나", async () => {

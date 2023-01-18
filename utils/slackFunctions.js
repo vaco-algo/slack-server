@@ -23,7 +23,7 @@ class SlackFunctions {
       if (data.problem === "fail" || !data.problem) {
         return await this.app.client.chat.postMessage({
           token: process.env.SLACK_BOT_TOKEN,
-          channel: "C04F3TS3C73",
+          channel: process.env.MESSAGE_CHANNEL,
           text: `문제 업로드 중입니다. 잠시만 기다려주세요!✨
           \nLeetcode 문제 주소: ${data.url}
           `,
@@ -32,7 +32,7 @@ class SlackFunctions {
 
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
-        channel: "C04F3TS3C73",
+        channel: process.env.MESSAGE_CHANNEL,
         text: `문제 업로드 완료✨
         \n\nLeetcode 문제 이름: ${data.problem}
         \nLeetcode 문제 주소: ${data.url}
@@ -46,18 +46,7 @@ class SlackFunctions {
 
   async wakeupServer() {
     try {
-      const now = new Date();
-      const utcNow = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
-      const koreaTimeDiff = 9 * 60 * 60 * 1000;
-      const koreaNowTime = Date(utcNow + koreaTimeDiff).slice(16, 24);
-
-      await this.app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: "C04F3TS3C73",
-        text: `🔹 ${koreaNowTime}`,
-      });
-
-      console.log("wakeup");
+      await axios.get("https://vas-slack-server.onrender.com/wakeup");
     } catch (error) {
       console.error(error);
     }
@@ -145,6 +134,7 @@ class SlackFunctions {
   async clickButton({ body, ack, say }) {
     try {
       const clickedMember = member[body.user.id];
+      console.log("join", member[body.user.id]);
 
       if (
         joinedAlgoMembers.find((joinedMember) => joinedMember === clickedMember)
@@ -162,23 +152,25 @@ class SlackFunctions {
     }
   }
 
-  async initialSettingMethodMessage({ message, say }) {
+  async initialSettingMethodMessage({ body }) {
     try {
-      console.log(message);
-      await say(
-        "1. `https://github.com/vaco-algo/vaco-algo-study` fork \n2. `$ git clone fork한 레포` \n3. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n4. 문제 내려받기 \n⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo/problems`⭐️"
-      );
+      await this.app.client.chat.postMessage({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: body.event.channel,
+        text: "1. `https://github.com/vaco-algo/vaco-algo-study` fork \n2. `$ git clone fork한 레포` \n3. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n4. 문제 내려받기 \n⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo/problems`⭐️",
+      });
     } catch (error) {
       console.log("초기 설정 방법 에러", error);
     }
   }
 
-  async fethProblem({ message, say }) {
+  async fethProblem({ body }) {
     try {
-      console.log(message);
-      await say(
-        "⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo problems`⭐️"
-      );
+      await this.app.client.chat.postMessage({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: body.event.channel,
+        text: "⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo problems`⭐️",
+      });
     } catch (error) {
       console.log("문제 업데이트 방법 에러", error);
     }
