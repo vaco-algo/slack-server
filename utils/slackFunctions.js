@@ -152,11 +152,11 @@ class SlackFunctions {
     }
   }
 
-  async initialSettingMethodMessage({ body }) {
+  async initialSettingMethodMessage(channelId) {
     try {
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
-        channel: body.event.channel,
+        channel: channelId,
         text: "1. `https://github.com/vaco-algo/vaco-algo-study` fork \n2. `$ git clone fork한 레포` \n3. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n4. 문제 내려받기 \n⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo/problems`⭐️",
       });
     } catch (error) {
@@ -164,11 +164,11 @@ class SlackFunctions {
     }
   }
 
-  async fethProblem({ body }) {
+  async fethProblem(channelId) {
     try {
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
-        channel: body.event.channel,
+        channel: channelId,
         text: "⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo problems`⭐️",
       });
     } catch (error) {
@@ -176,16 +176,24 @@ class SlackFunctions {
     }
   }
 
-  async passiveRandomReviewer({ message, say }) {
-    let peoples = message.text.match(/\[.*\]/gi);
+  async passiveRandomReviewer(names, channelId) {
+    try {
+      let peoples = names.match(/\[.*\]/gi);
 
-    if (!peoples) return;
+      if (!peoples) return;
 
-    peoples += "";
+      peoples += "";
 
-    const reviewer = generateRandomReviewer(peoples.slice(1, -1).split(","));
+      const reviewer = generateRandomReviewer(peoples.slice(1, -1).split(","));
 
-    await say(`⭐️Today's Reviewer \n ${reviewer}`);
+      await this.app.client.chat.postMessage({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: channelId,
+        text: `⭐️Today's Reviewer \n ${reviewer}`,
+      });
+    } catch (error) {
+      console.log("문제 업데이트 방법 에러", error);
+    }
   }
 
   async pickBotGuide({ say }) {

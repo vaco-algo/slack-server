@@ -13,7 +13,7 @@ const app = new App({
         console.log("root");
 
         res.writeHead(200);
-        res.end("root");
+        return res.end("root");
       },
     },
     {
@@ -23,7 +23,7 @@ const app = new App({
         console.log("wakeup");
 
         res.writeHead(200);
-        res.end("server wakeup");
+        return res.end("server wakeup");
       },
     },
   ],
@@ -49,16 +49,42 @@ let schedulerModule;
   }
 })();
 
+app.command("/랜덤리뷰어", async ({ command, ack, message }) => {
+  await ack();
+
+  const { channel_id: channelId, text: names } = JSON.parse(
+    JSON.stringify(command)
+  );
+
+  await slackFuncs.passiveRandomReviewer(names, channelId);
+});
+
+app.command("/초기설정방법", async ({ command, ack }) => {
+  await ack();
+
+  const { channel_id: channelId } = JSON.parse(JSON.stringify(command));
+
+  return await slackFuncs.initialSettingMethodMessage(channelId);
+});
+
+app.command("/문제업데이트방법", async ({ command, ack }) => {
+  await ack();
+
+  const { channel_id: channelId } = JSON.parse(JSON.stringify(command));
+
+  return await slackFuncs.fethProblem(channelId);
+});
+
 app.action("button_click", async ({ body, ack, say }) => {
   await slackFuncs.clickButton({ body, ack, say });
 });
 
 app.message("초기 설정 방법", async ({ body }) => {
-  await slackFuncs.initialSettingMethodMessage({ body });
+  await slackFuncs.initialSettingMethodMessage(body.event.channel);
 });
 
 app.message("문제 업데이트 방법", async ({ body }) => {
-  await slackFuncs.fethProblem({ body });
+  await slackFuncs.fethProblem(body.event.channel);
 });
 
 app.message("일어나", async () => {
@@ -77,8 +103,8 @@ app.message("타임아웃", async () => {
   await slackFuncs.timeOutMessage();
 });
 
-app.message("랜덤 리뷰어", async ({ message, say }) => {
-  await slackFuncs.passiveRandomReviewer({ message, say });
+app.message("랜덤 리뷰어", async ({ message, body }) => {
+  await slackFuncs.passiveRandomReviewer(message.text, body.event.channel);
 });
 
 app.message("hey", async ({ say }) => {
