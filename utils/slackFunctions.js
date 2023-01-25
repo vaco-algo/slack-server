@@ -56,7 +56,7 @@ class SlackFunctions {
     try {
       joinedAlgoMembers.length = 0;
 
-      const result = await this.app.client.chat.postMessage({
+      await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: process.env.MESSAGE_CHANNEL,
         text: "Good Morning",
@@ -90,7 +90,7 @@ class SlackFunctions {
         ],
       });
 
-      console.log(result);
+      console.log("morning~");
     } catch (error) {
       console.error(error);
     }
@@ -114,7 +114,6 @@ class SlackFunctions {
 
   async sendReviewer() {
     try {
-      console.log(joinedAlgoMembers, "what");
       const reviewer = generateRandomReviewer(joinedAlgoMembers);
 
       if (!reviewer) return;
@@ -134,7 +133,7 @@ class SlackFunctions {
   async clickButton({ body, ack, say }) {
     try {
       const clickedMember = member[body.user.id];
-      console.log("join", member[body.user.id]);
+      console.log("joined member: ", clickedMember);
 
       if (
         joinedAlgoMembers.find((joinedMember) => joinedMember === clickedMember)
