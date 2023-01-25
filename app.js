@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const { App } = require("@slack/bolt");
 const SetScheduler = require("./utils/setSchedule");
 const SlackFunctions = require("./utils/slackFunctions");
