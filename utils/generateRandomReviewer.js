@@ -14,7 +14,7 @@ function generateRandomReviewer(peopleArr) {
         return "👻";
       }
 
-      return person.name;
+      return person.name.length > 4 ? `<@${person.name}>` : person.name;
     });
 
   return order.join(" => ") + " => " + order[0];

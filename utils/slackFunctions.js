@@ -3,6 +3,12 @@ const generateRandomReviewer = require("./generateRandomReviewer.js");
 const member = require("../constants/member.js");
 
 const joinedAlgoMembers = [];
+const idOfJoinedMembers = [];
+
+const initializeArr = (arr1, arr2) => {
+  arr1.length = 0;
+  arr2.length = 0;
+};
 
 const getLeetcodeUrl = async () => {
   const { data } = await axios.get("https://leetcoder-rc2k.onrender.com");
@@ -54,7 +60,7 @@ class SlackFunctions {
 
   async sendMorningMessage() {
     try {
-      joinedAlgoMembers.length = 0;
+      initializeArr(joinedAlgoMembers, idOfJoinedMembers);
 
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
@@ -62,10 +68,18 @@ class SlackFunctions {
         text: "Good Morning",
         blocks: [
           {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: `Good Morning Vas Members!🌼`,
+              emoji: true,
+            },
+          },
+          {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: `Good Morning Vas Members!🌼\n Are you ready to become a Algo King? \n(Join 클릭 후 메시지 안뜨면 체크 이모지 추가해주세요!)`,
+              text: `Are you ready to be an Algo King? \n(Join 클릭 후 메시지 안뜨면 체크 이모지 추가해주세요!)!`,
             },
           },
           {
@@ -83,8 +97,26 @@ class SlackFunctions {
                 type: "plain_text",
                 text: "Join",
               },
+              style: "primary",
               value: "click_me_123",
-              action_id: "button_click",
+              action_id: "join_button_click",
+            },
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "Want to cancel?",
+            },
+            accessory: {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "Cancel",
+              },
+              style: "danger",
+              value: "cancel_button",
+              action_id: "cancel_button_click",
             },
           },
         ],
@@ -98,12 +130,12 @@ class SlackFunctions {
 
   async timeOutMessage() {
     try {
-      joinedAlgoMembers.length = 0;
+      initializeArr(joinedAlgoMembers, idOfJoinedMembers);
 
       const result = await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: process.env.MESSAGE_CHANNEL,
-        text: `✨우리가 우리 자신에게 실패를 허락 할 때, 우리는 동시에 우리 자신에게 탁월함을 허락한다. - Eloise Ristad \n 🌼 PR을 완료해주세요!`,
+        text: `✨오늘은 pr과 리뷰를 마무리하는 날입니다.\n리뷰어의 리뷰를 기다리고 있을 분들을 위해 짧게라도 리뷰를 달아주세요!😆 \n남은 오늘도 화이팅💪`,
       });
 
       console.log(result);
@@ -114,14 +146,18 @@ class SlackFunctions {
 
   async sendReviewer() {
     try {
-      const reviewer = generateRandomReviewer(joinedAlgoMembers);
+      const reviewer = idOfJoinedMembers.length
+        ? generateRandomReviewer(idOfJoinedMembers)
+        : "No reviewers😱";
 
       if (!reviewer) return;
+
+      initializeArr(joinedAlgoMembers, idOfJoinedMembers);
 
       const result = await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: process.env.MESSAGE_CHANNEL,
-        text: `⭐️Today's Reviewer \n ${reviewer} \n(리뷰어 잘못 설정되어있을 시 "랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
+        text: `⭐️Today's Reviewer: \n ${reviewer} \n\n(리뷰어 잘못 설정되어있을 시 "랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
       });
 
       console.log(result);
@@ -142,9 +178,46 @@ class SlackFunctions {
         return;
       } else {
         joinedAlgoMembers.push(clickedMember);
+        idOfJoinedMembers.push(body.user.id);
 
         await ack();
         await say(`<${joinedAlgoMembers.join()}> joined in today's Algo`);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async clickCancelButton({ body, ack, say }) {
+    try {
+      const clickedMember = member[body.user.id];
+      console.log("canceld member: ", clickedMember);
+
+      if (
+        !joinedAlgoMembers.length ||
+        !joinedAlgoMembers.find(
+          (joinedMember) => joinedMember === clickedMember
+        ).length
+      ) {
+        await ack();
+        throw new Error("Nothing to do");
+      } else {
+        const clickedMemberIndex = (() => {
+          for (let i = 0; i < joinedAlgoMembers.length; i++) {
+            if (joinedAlgoMembers[i] === clickedMember) {
+              return i;
+            }
+          }
+        })();
+
+        joinedAlgoMembers.splice(clickedMemberIndex, 1);
+        idOfJoinedMembers.splice(clickedMemberIndex, 1);
+
+        await ack();
+        await say(
+          `Bye ${clickedMember}👋\n Current participants: <${joinedAlgoMembers}>
+          `
+        );
       }
     } catch (err) {
       console.log(err);
@@ -184,6 +257,8 @@ class SlackFunctions {
       peoples += "";
 
       const reviewer = generateRandomReviewer(peoples.slice(1, -1).split(","));
+
+      initializeArr(joinedAlgoMembers, idOfJoinedMembers);
 
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
