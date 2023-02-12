@@ -157,7 +157,7 @@ class SlackFunctions {
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: process.env.MESSAGE_CHANNEL,
-        text: `⭐️Today's Reviewer: \n ${reviewer} \n\n(리뷰어 잘못 설정되어있을 시 "/랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
+        text: `⭐️Today's Reviewer: \n ${reviewer} \n\n(리뷰어 잘못 설정되어있을 시 "랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
       });
 
       console.log("리뷰어 전송");
