@@ -45,16 +45,16 @@ class SlackFunctions {
         \n⚠️git fetch algo *problems*
         \n⚠️git merge algo/problems`,
       });
-    } catch (error) {
-      console.log("문제 받는 거 에러", error);
+    } catch (err) {
+      console.log("문제 받는 거 에러", err);
     }
   }
 
   async wakeupServer() {
     try {
       await axios.get("https://vas-slack-server.onrender.com/wakeup");
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.log("wakeup", err);
     }
   }
 
@@ -123,8 +123,8 @@ class SlackFunctions {
       });
 
       console.log("morning~");
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.log("morning", err);
     }
   }
 
@@ -138,9 +138,9 @@ class SlackFunctions {
         text: `✨오늘은 pr과 리뷰를 마무리하는 날입니다.\n리뷰어의 리뷰를 기다리고 있을 분들을 위해 짧게라도 리뷰를 달아주세요!😆 \n남은 오늘도 화이팅💪`,
       });
 
-      console.log(result);
-    } catch (error) {
-      console.error(error);
+      console.log("timeout 실행");
+    } catch (err) {
+      console.log("timeout", err);
     }
   }
 
@@ -154,21 +154,21 @@ class SlackFunctions {
 
       initializeArr(joinedAlgoMembers, idOfJoinedMembers);
 
-      const result = await this.app.client.chat.postMessage({
+      await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: process.env.MESSAGE_CHANNEL,
-        text: `⭐️Today's Reviewer: \n ${reviewer} \n\n(리뷰어 잘못 설정되어있을 시 "랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
+        text: `⭐️Today's Reviewer: \n ${reviewer} \n\n(리뷰어 잘못 설정되어있을 시 "/랜덤 리뷰어 [이름, 이름]" 형식으로 메시지를 보내주세요.)`,
       });
 
-      console.log(result);
-    } catch (error) {
-      console.error(error);
+      console.log("리뷰어 전송");
+    } catch (err) {
+      console.log("리뷰어 전송", err);
     }
   }
 
-  async clickButton({ body, ack, say }) {
+  async clickJoinButton({ body, ack, say }) {
     try {
-      const clickedMember = member[body.user.id];
+      const clickedMember = process.env[body.user.id];
       console.log("joined member: ", clickedMember);
 
       if (
@@ -184,7 +184,7 @@ class SlackFunctions {
         await say(`<${joinedAlgoMembers.join()}> joined in today's Algo`);
       }
     } catch (err) {
-      console.log(err);
+      console.log("join click", err);
     }
   }
 
@@ -220,31 +220,55 @@ class SlackFunctions {
         );
       }
     } catch (err) {
-      console.log(err);
+      console.log("cancel click", err);
     }
   }
 
-  async initialSettingMethodMessage(channelId) {
+  async initialSettingMethodMessage(channelId, userId, global) {
     try {
-      await this.app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: channelId,
-        text: "1. `https://github.com/vaco-algo/vaco-algo-study` fork \n2. `$ git clone fork한 레포` \n3. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n4. 문제 내려받기 \n⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo/problems`⭐️",
-      });
-    } catch (error) {
-      console.log("초기 설정 방법 에러", error);
+      console.log("초기 설정 방법");
+
+      const text =
+        "🔹초기 설정 방법\n1. `https://github.com/vaco-algo/vaco-algo-study` fork \n2. `$ git clone fork한 레포` \n3. `$ git remote add algo https://github.com/vaco-algo/vaco-algo-study.git` 으로 본 레포를 remote에 추가한다. \n4. 문제 내려받기 \n⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo/problems`⭐️";
+
+      if (global) {
+        return await this.app.client.chat.postMessage({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: channelId,
+          text,
+        });
+      } else {
+        return await this.app.client.chat.postEphemeral({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: channelId,
+          text,
+          user: userId,
+        });
+      }
+    } catch (err) {
+      console.log("초기 설정 방법", err);
     }
   }
 
-  async fethProblem(channelId) {
+  async fetchProblem(channelId, userId, global) {
     try {
-      await this.app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: channelId,
-        text: "⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo problems`⭐️",
-      });
-    } catch (error) {
-      console.log("문제 업데이트 방법 에러", error);
+      if (global) {
+        await this.app.client.chat.postMessage({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: channelId,
+          text: "⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo/problems`⭐️",
+        });
+      } else {
+        await this.app.client.chat.postEphemeral({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: channelId,
+          text: "⭐️1. `$ git fetch algo problems`⭐️ \n⭐️2. `$ git merge algo/problems`⭐️",
+          user: userId,
+        });
+      }
+      console.log("문제 업데이트 방법");
+    } catch (err) {
+      console.log("문제 업데이트 방법", err);
     }
   }
 
@@ -265,18 +289,34 @@ class SlackFunctions {
         channel: channelId,
         text: `⭐️Today's Reviewer \n ${reviewer}`,
       });
-    } catch (error) {
-      console.log("문제 업데이트 방법 에러", error);
+      console.log("수동 랜덤 리뷰어");
+    } catch (err) {
+      console.log("수동 랜덤 리뷰어", err);
     }
   }
 
-  async pickBotGuide({ say }) {
+  async pickBotGuide(channelId, userId, global) {
     try {
-      await say(
-        "🔹picker bot은 매주 화요일 목요일\n🔹9시 30분, 10시 30분, 11시에 메세지를 보냅니다.\n\n🔹picker bot의 명령어 \n1. `초기 설정 방법`\n2. `문제 업데이트 방법`\n3. `문제 업로드 완료`\n5.`굿모닝`(알고리즘 푸는 사람 모으기) \n6. `랜덤 리뷰어 [이름, 이름, 이름]`\n를 입력하면 어디든지 나타납니다.\n(다이렉트 메시지 제외, picker bot을 각 채널에 초대하여야 합니다.)"
-      );
-    } catch (error) {
-      console.log("hey", error);
+      const text =
+        "🚀picker bot은 매주 월요일 목요일\n9시 30분에 참가 신청을 받는 메세지를 보냅니다.\n\n문제 업로드 시간\n👉오전 11시 05분\n리뷰어 배정 시간\n👉월, 목 저녁 8시\n알고리즘 푸는 시간\n👉월요일 시작 ~ 수요일까지 pr, 리뷰\n👉목요일 시작 ~ 토요일까지 pr, 리뷰\n\n🔹picker bot의 슬래시(/) 명령어\n(-g가 붙어있지 않으면 본인에게만 메시지가 보입니다.)\n1. `/픽봇가이드`\n2. `/픽봇가이드-g`\n3. `/초기설정방법`\n4. `/초기설정방법-g`\n5. `/문제업데이트방법`\n6. `/문제업데이트방법-g`\n\n명령어를 입력하면 어디든지 나타납니다.\n(다이렉트 메시지 제외, picker bot을 각 채널에 초대하여야 합니다.)";
+
+      if (global) {
+        await this.app.client.chat.postMessage({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: channelId,
+          text,
+        });
+      } else {
+        await this.app.client.chat.postEphemeral({
+          token: process.env.SLACK_BOT_TOKEN,
+          channel: channelId,
+          text,
+          user: userId,
+        });
+      }
+      console.log("픽봇 가이드");
+    } catch (err) {
+      console.log("픽봇 가이드", err);
     }
   }
 }

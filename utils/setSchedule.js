@@ -4,7 +4,7 @@ class SetScheduler {
   constructor(slackFuncs) {
     this.slackFunctions = slackFuncs;
     this.sameRules = {
-      dayOfWeek: [2, 4],
+      dayOfWeek: [1, 4],
       tz: "Asia/Seoul",
     };
     this.obj = {
@@ -38,22 +38,23 @@ class SetScheduler {
     this.rules.reviewerMatchRule = {
       ...this.rules.reviewerMatchRule,
       ...this.sameRules,
-      hour: 10,
-      minute: 30,
+      hour: 20,
+      minute: 0,
     };
 
     this.rules.sendProblemUrlRule = {
       ...this.rules.sendProblemUrlRule,
       ...this.sameRules,
-      hour: 10,
-      minute: 59,
+      hour: 11,
+      minute: 5,
     };
 
     this.rules.timeOutMesssageRule = {
       ...this.rules.timeOutMesssageRule,
-      ...this.sameRules,
-      hour: 12,
-      minute: 30,
+      dayOfWeek: [3, 6],
+      tz: "Asia/Seoul",
+      hour: 14,
+      minute: 0,
     };
 
     const wakeupServerJob = schedule.scheduleJob(wakeupRule, () => {
