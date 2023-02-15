@@ -1,13 +1,13 @@
 const axios = require("axios");
 const generateRandomReviewer = require("./generateRandomReviewer.js");
 const member = require("../constants/member.js");
+const Participant = require("../model/Participant");
 
-const joinedAlgoMembers = [];
-const idOfJoinedMembers = [];
-
-const initializeArr = (arr1, arr2) => {
-  arr1.length = 0;
-  arr2.length = 0;
+const initializeJoinedMemberData = async () => {
+  await Participant.findOneAndUpdate(
+    { _id: process.env.DB_ID },
+    { peoples: {} }
+  );
 };
 
 const getLeetcodeUrl = async () => {
@@ -58,13 +58,13 @@ class SlackFunctions {
     }
   }
 
-  async sendMorningMessage() {
+  async sendMorningMessage(channel) {
     try {
-      initializeArr(joinedAlgoMembers, idOfJoinedMembers);
+      await initializeJoinedMemberData();
 
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
-        channel: process.env.MESSAGE_CHANNEL,
+        channel: channel || process.env.MESSAGE_CHANNEL,
         text: "Good Morning",
         blocks: [
           {
@@ -130,9 +130,9 @@ class SlackFunctions {
 
   async timeOutMessage() {
     try {
-      initializeArr(joinedAlgoMembers, idOfJoinedMembers);
+      await initializeJoinedMemberData();
 
-      const result = await this.app.client.chat.postMessage({
+      await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: process.env.MESSAGE_CHANNEL,
         text: `✨오늘은 pr과 리뷰를 마무리하는 날입니다.\n리뷰어의 리뷰를 기다리고 있을 분들을 위해 짧게라도 리뷰를 달아주세요!😆 \n남은 오늘도 화이팅💪`,
@@ -146,13 +146,14 @@ class SlackFunctions {
 
   async sendReviewer() {
     try {
-      const reviewer = idOfJoinedMembers.length
-        ? generateRandomReviewer(idOfJoinedMembers)
+      const participants = await Participant.find();
+      const participantsIdArr = Object.keys(participants[0].peoples);
+
+      const reviewer = Object.Keys(participants[0].peoples).length
+        ? generateRandomReviewer(participantsIdArr)
         : "No reviewers😱";
 
-      if (!reviewer) return;
-
-      initializeArr(joinedAlgoMembers, idOfJoinedMembers);
+      initializeJoinedMemberData();
 
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
@@ -171,18 +172,24 @@ class SlackFunctions {
       const clickedMember = process.env[body.user.id];
       console.log("joined member: ", clickedMember);
 
-      if (
-        joinedAlgoMembers.find((joinedMember) => joinedMember === clickedMember)
-      ) {
+      const participants = await Participant.find();
+
+      if (participants[0].peoples[body.user.id]) {
         await ack();
         return;
-      } else {
-        joinedAlgoMembers.push(clickedMember);
-        idOfJoinedMembers.push(body.user.id);
-
-        await ack();
-        await say(`<${joinedAlgoMembers.join()}> joined in today's Algo`);
       }
+
+      participants[0].peoples = {
+        ...participants[0].peoples,
+        [body.user.id]: clickedMember,
+      };
+
+      await participants[0].save();
+
+      const participantsNames = Object.values(participants[0].peoples);
+
+      await ack();
+      await say(`<${participantsNames.join()}> joined in today's Algo`);
     } catch (err) {
       console.log("join click", err);
     }
@@ -193,32 +200,29 @@ class SlackFunctions {
       const clickedMember = member[body.user.id];
       console.log("canceld member: ", clickedMember);
 
-      if (
-        !joinedAlgoMembers.length ||
-        !joinedAlgoMembers.find(
-          (joinedMember) => joinedMember === clickedMember
-        ).length
-      ) {
-        await ack();
-        throw new Error("Nothing to do");
-      } else {
-        const clickedMemberIndex = (() => {
-          for (let i = 0; i < joinedAlgoMembers.length; i++) {
-            if (joinedAlgoMembers[i] === clickedMember) {
-              return i;
-            }
-          }
-        })();
+      const participants = await Participant.find();
 
-        joinedAlgoMembers.splice(clickedMemberIndex, 1);
-        idOfJoinedMembers.splice(clickedMemberIndex, 1);
-
+      if (!participants[0].peoples[body.user.id]) {
         await ack();
-        await say(
-          `Bye ${clickedMember}👋\n Current participants: <${joinedAlgoMembers}>
-          `
-        );
+        return;
       }
+
+      const copyObj = { ...participants[0].peoples };
+      delete copyObj[body.user.id];
+
+      participants[0].peoples = {
+        ...copyObj,
+      };
+
+      await participants[0].save();
+
+      const participantsNames = Object.values(participants[0].peoples);
+
+      await ack();
+      await say(
+        `Bye ${clickedMember}👋\n Current participants: <${participantsNames.join()}>
+          `
+      );
     } catch (err) {
       console.log("cancel click", err);
     }
@@ -282,7 +286,7 @@ class SlackFunctions {
 
       const reviewer = generateRandomReviewer(peoples.slice(1, -1).split(","));
 
-      initializeArr(joinedAlgoMembers, idOfJoinedMembers);
+      await initializeJoinedMemberData();
 
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
