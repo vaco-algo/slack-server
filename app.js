@@ -3,6 +3,9 @@ dotenv.config();
 const { App } = require("@slack/bolt");
 const SetScheduler = require("./utils/setSchedule");
 const SlackFunctions = require("./utils/slackFunctions");
+const { connectDB } = require("./db/database");
+
+connectDB();
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -134,8 +137,8 @@ app.message("문제업데이트방법", async ({ body }) => {
   await slackFuncs.fetchProblem(body.event.channel);
 });
 
-app.message("굿모닝", async () => {
-  await slackFuncs.sendMorningMessage();
+app.message("굿모닝", async ({ body }) => {
+  await slackFuncs.sendMorningMessage(body.event.channel);
 });
 
 app.message("랜덤 리뷰어", async ({ message, body }) => {
