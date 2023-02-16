@@ -153,7 +153,7 @@ class SlackFunctions {
       const participants = await Participant.find();
       const participantsIdArr = Object.keys(participants[0].peoples);
 
-      const reviewer = Object.Keys(participants[0].peoples).length
+      const reviewer = Object.keys(participants[0].peoples).length
         ? generateRandomReviewer(participantsIdArr)
         : "No reviewers😱";
 
