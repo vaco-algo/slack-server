@@ -55,9 +55,8 @@ class SlackFunctions {
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: "C04F3TS3C73",
-        text: "✨✨",
+        text: "wakeup",
       });
-      await axios.get("https://vas-slack-server.onrender.com/wakeup");
     } catch (err) {
       console.log("wakeup에러");
     }
