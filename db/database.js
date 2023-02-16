@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 
 exports.connectDB = async () => {
   try {
-    await mongoose.connect(process.env.DB_HOST);
+    mongoose.set("strictQuery", false);
+    await mongoose.connect(process.env.DB_HOST, { useNewUrlParser: true });
     console.log("Success DB Connection");
     return;
   } catch (err) {
