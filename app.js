@@ -25,6 +25,7 @@ const app = new App({
       path: "/wakeup",
       method: ["GET"],
       handler: async (_, res) => {
+        console.log("wakeup");
         res.writeHead(200);
         return res.end("server wakeup");
       },
@@ -129,7 +130,6 @@ app.message("픽봇가이드", async ({ body }) => {
 });
 
 app.message("초기설정방법", async ({ body }) => {
-  console.log("hihi");
   await slackFuncs.initialSettingMethodMessage(body.event.channel);
 });
 
