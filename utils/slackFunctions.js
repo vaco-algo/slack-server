@@ -139,7 +139,7 @@ class SlackFunctions {
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: process.env.MESSAGE_CHANNEL,
-        text: `✨오늘은 pr과 리뷰를 마무리하는 날입니다.\n리뷰어의 리뷰를 기다리고 있을 분들을 위해 짧게라도 리뷰를 달아주세요!😆 \n남은 오늘도 화이팅💪`,
+        text: `🥸라스트 데이 오브 리뷰`,
       });
 
       console.log("timeout 실행");
