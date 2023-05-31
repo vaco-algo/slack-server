@@ -32,21 +32,21 @@ class SetScheduler {
       ...this.rules.morningMessagehRule,
       ...this.sameRules,
       hour: 9,
-      minute: 30,
+      minute: 0,
     };
 
     this.rules.reviewerMatchRule = {
       ...this.rules.reviewerMatchRule,
       ...this.sameRules,
-      hour: 20,
+      hour: 12,
       minute: 0,
     };
 
     this.rules.sendProblemUrlRule = {
       ...this.rules.sendProblemUrlRule,
       ...this.sameRules,
-      hour: 11,
-      minute: 5,
+      hour: 10,
+      minute: 0,
     };
 
     this.rules.timeOutMesssageRule = {
@@ -85,19 +85,19 @@ class SetScheduler {
       }
     );
 
-    const timeOutMesssageJob = schedule.scheduleJob(
-      this.rules.timeOutMesssageRule,
-      () => {
-        console.log("타임아웃 메시지 스타트");
-        this.slackFunctions.timeOutMessage();
-      }
-    );
+    // const timeOutMesssageJob = schedule.scheduleJob(
+    //   this.rules.timeOutMesssageRule,
+    //   () => {
+    //     console.log("타임아웃 메시지 스타트");
+    //     this.slackFunctions.timeOutMessage();
+    //   }
+    // );
 
     this.obj.wakeupServerObj = wakeupServerJob;
     this.obj.sendProblemUrlObj = sendProblemUrlJob;
     this.obj.morningMessageObj = morningMessageJob;
     this.obj.reviewerMessageObj = sendReviewerJob;
-    this.obj.timeOutMessageObj = timeOutMesssageJob;
+    // this.obj.timeOutMessageObj = timeOutMesssageJob;
   }
 
   initializeJob() {
@@ -107,7 +107,7 @@ class SetScheduler {
     if (this.obj.sendProblemUrlObj) this.obj.sendProblemUrlObj.cancel();
     if (this.obj.morningMessageObj) this.obj.morningMessageObj.cancel();
     if (this.obj.reviewerMessageObj) this.obj.reviewerMessageObj.cancel();
-    if (this.obj.timeOutMessageObj) this.obj.timeOutMessageObj.cancel();
+    // if (this.obj.timeOutMessageObj) this.obj.timeOutMessageObj.cancel();
   }
 }
 
