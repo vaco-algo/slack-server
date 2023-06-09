@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const { App } = require("@slack/bolt");
-const SetScheduler = require("./utils/setSchedule");
+const CronJob = require("cron").CronJob;
 const SlackFunctions = require("./utils/slackFunctions");
 const { connectDB } = require("./db/database");
 
@@ -35,17 +35,69 @@ const app = new App({
 });
 
 let slackFuncs;
-let schedulerModule;
 
 (async () => {
   try {
     await app.start();
+    const timeZone = "Asia/Seoul";
 
     slackFuncs = new SlackFunctions(app);
-    schedulerModule = new SetScheduler(slackFuncs);
 
-    schedulerModule.initializeJob();
-    schedulerModule.setScheduling();
+    /**
+     * setting cron
+     */
+    // const wakeup = new CronJob(
+    //   "*/10 * * * *",
+    //   async function () {
+    //     console.log("wakeup");
+    //     await slackFuncs.wakeupServer();
+    //   },
+    //   null,
+    //   true,
+    //   timeZone
+    // );
+
+    setInterval(async function () {
+      await slackFuncs.wakeupServer();
+    }, 600000);
+
+    const morningMessage = new CronJob(
+      "0 0 9 * * 1,4,5,6",
+      async function () {
+        console.log("모닝 메시지 스타트");
+        await slackFuncs.sendMorningMessage();
+      },
+      null,
+      true,
+      timeZone
+    );
+
+    const reviewMatch = new CronJob(
+      "0 0 12 * * 1,4,5,6",
+      async function () {
+        console.log("리뷰어 매치 스타트");
+        await slackFuncs.sendReviewer();
+      },
+      null,
+      true,
+      timeZone
+    );
+
+    const sendProblemUrl = new CronJob(
+      "0 0 10 * * 1,4,5,6",
+      async function () {
+        console.log("문제 업로드 스타트");
+        await slackFuncs.sendLeetcodeUrl();
+      },
+      null,
+      true,
+      "Asia/Seoul"
+    );
+
+    wakeup.start();
+    morningMessage.start();
+    reviewMatch.start();
+    sendProblemUrl.start();
 
     console.log("⚡️ Bolt app is running!");
   } catch (err) {
@@ -53,6 +105,9 @@ let schedulerModule;
   }
 })();
 
+/**
+ * command
+ */
 app.command("/픽봇가이드", async ({ command, ack }) => {
   await ack();
 
@@ -117,6 +172,9 @@ app.command("/문제업데이트방법-g", async ({ command, ack }) => {
   return await slackFuncs.fetchProblem(channelId, userId, "global");
 });
 
+/**
+ * action
+ */
 app.action("join_button_click", async ({ body, ack, say }) => {
   await slackFuncs.clickJoinButton({ body, ack, say });
 });
@@ -125,6 +183,9 @@ app.action("cancel_button_click", async ({ body, ack, say }) => {
   await slackFuncs.clickCancelButton({ body, ack, say });
 });
 
+/**
+ * message
+ */
 app.message("픽봇가이드", async ({ body }) => {
   await slackFuncs.pickBotGuide(body.event.channel);
 });
@@ -146,7 +207,5 @@ app.message("랜덤 리뷰어", async ({ message, body }) => {
 });
 
 app.error((err) => {
-  schedulerModule.initializeJob();
-  console.log("스케줄 제거");
   console.error(err);
 });

@@ -1,6 +1,5 @@
 const axios = require("axios");
 const generateRandomReviewer = require("./generateRandomReviewer.js");
-const member = require("../constants/member.js");
 const Participant = require("../model/Participant");
 
 const initializeJoinedMemberData = async () => {
@@ -52,6 +51,12 @@ class SlackFunctions {
 
   async wakeupServer() {
     try {
+      const { data } = await axios(`${process.env.URL}/wakeup`);
+
+      if (!data) {
+        await axios(`${process.env.URL}`);
+      }
+
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: "C04F3TS3C73",
@@ -201,7 +206,7 @@ class SlackFunctions {
 
   async clickCancelButton({ body, ack, say }) {
     try {
-      const clickedMember = member[body.user.id];
+      const clickedMember = process.env[body.user.id];
       console.log("canceld member: ", clickedMember);
 
       const participants = await Participant.find();

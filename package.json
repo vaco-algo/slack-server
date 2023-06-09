@@ -22,12 +22,11 @@
     "@slack/bolt": "^3.12.2",
     "@slack/events-api": "^3.0.1",
     "axios": "^1.2.1",
+    "cron": "^2.3.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "http": "^0.0.1-security",
     "mongoose": "^6.9.1",
-    "node-schedule": "^2.1.0",
-    "nodemon": "^2.0.20",
-    "toad-scheduler": "^2.1.1"
+    "nodemon": "^2.0.20"
   }
 }
