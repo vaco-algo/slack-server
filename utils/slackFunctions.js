@@ -10,7 +10,7 @@ const initializeJoinedMemberData = async () => {
 };
 
 const getLeetcodeUrl = async () => {
-  const { data } = await axios.get("https://leetcoder-rc2k.onrender.com");
+  const { data } = await axios.get(process.env.LEETCODER_URL);
 
   return data;
 };
@@ -49,21 +49,15 @@ class SlackFunctions {
     }
   }
 
-  async wakeupServer() {
+  async testBot() {
     try {
-      const { data } = await axios(`${process.env.URL}/wakeup`);
-
-      if (!data) {
-        await axios(`${process.env.URL}`);
-      }
-
       await this.app.client.chat.postMessage({
         token: process.env.SLACK_BOT_TOKEN,
         channel: "C04F3TS3C73",
-        text: "wakeup",
+        text: "오늘도 좋은하루~",
       });
     } catch (err) {
-      console.log("wakeup에러");
+      console.log("test 에러");
     }
   }
 

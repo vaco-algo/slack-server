@@ -39,30 +39,26 @@ let slackFuncs;
 (async () => {
   try {
     await app.start();
-    const timeZone = "Asia/Seoul";
 
     slackFuncs = new SlackFunctions(app);
 
     /**
      * setting cron
      */
-    // const wakeup = new CronJob(
-    //   "*/10 * * * *",
-    //   async function () {
-    //     console.log("wakeup");
-    //     await slackFuncs.wakeupServer();
-    //   },
-    //   null,
-    //   true,
-    //   timeZone
-    // );
-
-    setInterval(async function () {
-      await slackFuncs.wakeupServer();
-    }, 600000);
+    const timeZone = "Asia/Seoul";
+    const botTest = new CronJob(
+      "00 00 10 * * 1-7",
+      async function () {
+        console.log("test");
+        await slackFuncs.testBot();
+      },
+      null,
+      true,
+      timeZone
+    );
 
     const morningMessage = new CronJob(
-      "0 0 9 * * 1,4,5,6",
+      "0 0 9 * * 1,4",
       async function () {
         console.log("모닝 메시지 스타트");
         await slackFuncs.sendMorningMessage();
@@ -73,7 +69,7 @@ let slackFuncs;
     );
 
     const reviewMatch = new CronJob(
-      "0 0 12 * * 1,4,5,6",
+      "0 0 12 * * 1,4",
       async function () {
         console.log("리뷰어 매치 스타트");
         await slackFuncs.sendReviewer();
@@ -84,7 +80,7 @@ let slackFuncs;
     );
 
     const sendProblemUrl = new CronJob(
-      "0 0 10 * * 1,4,5,6",
+      "0 0 10 * * 1,4",
       async function () {
         console.log("문제 업로드 스타트");
         await slackFuncs.sendLeetcodeUrl();
@@ -94,7 +90,7 @@ let slackFuncs;
       "Asia/Seoul"
     );
 
-    wakeup.start();
+    botTest.start();
     morningMessage.start();
     reviewMatch.start();
     sendProblemUrl.start();
