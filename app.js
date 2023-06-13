@@ -47,7 +47,7 @@ let slackFuncs;
      */
     const timeZone = "Asia/Seoul";
     const botTest = new CronJob(
-      "00 00 10 * * 1-7",
+      "0 0 14 * * *",
       async function () {
         console.log("test");
         await slackFuncs.testBot();
